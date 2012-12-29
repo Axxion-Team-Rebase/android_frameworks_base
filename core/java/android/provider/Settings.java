@@ -3369,6 +3369,13 @@ public final class Settings {
         public static final String RECENT_PANEL_SHOW_TOPMOST = "recent_panel_show_topmost";
 
         /**
+         * What happens when the user presses the Home button when the
+         * phone is ringing.
+         * @hide
+         */
+        public static final String HOME_BUTTON_ANSWER = "home_button_answer";
+
+        /**
          * Recent panel background color
          *
          * @hide
