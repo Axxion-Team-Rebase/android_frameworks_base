@@ -2845,10 +2845,7 @@ public final class Settings {
             POINTER_SPEED,
             VIBRATE_WHEN_RINGING,
             RINGTONE,
-<<<<<<< HEAD
             LOCK_TO_APP_ENABLED,
-            NOTIFICATION_SOUND
-=======
             NOTIFICATION_SOUND,
             PHONE_BLACKLIST_ENABLED,
             PHONE_BLACKLIST_NOTIFY_ENABLED,
@@ -2856,7 +2853,6 @@ public final class Settings {
             PHONE_BLACKLIST_UNKNOWN_NUMBER_MODE,
             PHONE_BLACKLIST_REGEX_ENABLED,
             BLUETOOTH_ACCEPT_ALL_FILES
->>>>>>> 47267f7... [1/2] base: make it compile using modified telephony - WIP
         };
 
         /**
@@ -4999,6 +4995,24 @@ public final class Settings {
          * @hide
          */
         public static final String SLEEP_TIMEOUT = "sleep_timeout";
+
+        /**
+         * Whether to include options in power menu for rebooting into recovery or bootloader
+         * @hide
+         */
+        public static final String ADVANCED_REBOOT = "advanced_reboot";
+
+        /**
+         * Whether developer settings dare enabled.
+         * @hide
+         */
+        public static final String DEVELOPER_OPTIONS_ENABLED = "developer_options_enabled";
+
+        /**
+         * The TCP/IP port to run ADB on, or -1 for USB
+         * @hide
+         */
+        public static final String ADB_PORT = "adb_port";
 
         /**
          * This are the settings to be backed up.
