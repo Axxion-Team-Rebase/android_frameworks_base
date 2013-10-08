@@ -18,7 +18,7 @@
 
 <resources>
 
-  <!--  FusionActions -->
+  <!--  AxxionActions -->
   <java-symbol type="string" name="action_home"/>
   <java-symbol type="string" name="action_back"/>
   <java-symbol type="string" name="action_recents"/>
@@ -56,4 +56,7 @@
   <java-symbol type="dimen" name="edge_gesture_trigger_distance" />
   <java-symbol type="dimen" name="edge_gesture_perpendicular_distance" />
   <java-symbol type="dimen" name="edge_gesture_trigger_thickness" />  
+  
+  <!-- Gesture Sensor -->
+  <java-symbol type="bool" name="config_enableGestureService" />  
 </resources>
