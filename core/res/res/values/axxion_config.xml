@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-/*
-** Copyright 2011, The Android Open Source Project
-** Copyright (c) 2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013, The Linux Foundation. All rights reserved.
 ** Not a Contribution.
-
+**
+** Copyright 2012, The Android Open Source Project
+**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
@@ -20,14 +20,7 @@
 -->
 <resources>
 
-    <dimen name="kg_status_clock_font_size">45dp</dimen>
-    <!-- Size of the date font in keyguard's status view -->
-    <dimen name="kg_status_date_font_size">10dp</dimen>
-
-    <!-- If this is true, key chords can be used to take a screen record on the device. -->
-    <bool name="config_enableScreenrecordChord">true</bool>
-
-   <!-- button brightness -->
-    <bool name="config_button_brightness_support">false</bool>
-    <integer name="config_button_brightness_default">128</integer>
+    <!-- True if the gesture service should be started at system start -->
+    <bool name="config_enableGestureService">false</bool>
+    
 </resources>

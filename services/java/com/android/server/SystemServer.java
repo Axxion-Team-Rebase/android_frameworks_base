@@ -553,6 +553,7 @@ public final class SystemServer {
         MediaRouterService mediaRouter = null;
         GestureService gestureService = null;
         EdgeGestureService edgeGestureService = null;
+        GestureService gestureService = null;
 
         // Bring up services needed for UI.
         if (mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
@@ -1156,6 +1157,14 @@ public final class SystemServer {
                 edgeGestureService.systemReady();
             } catch (Throwable e) {
                 reportWtf("making EdgeGesture service ready", e);
+            }
+        }
+
+        if (gestureService != null) {
+            try {
+                gestureService.systemReady();
+            } catch (Throwable e) {
+                reportWtf("making Gesture Sensor Service ready", e);
             }
         }
 
