@@ -84,6 +84,7 @@ import com.android.server.net.NetworkStatsService;
 import com.android.server.notification.NotificationManagerService;
 import com.android.server.os.SchedulingPolicyService;
 import com.android.server.pm.BackgroundDexOptService;
+import com.android.server.gesture.EdgeGestureService;
 import com.android.server.pm.Installer;
 import com.android.server.pm.LauncherAppsService;
 import com.android.server.pm.PackageManagerService;
@@ -551,6 +552,7 @@ public final class SystemServer {
         AssetAtlasService atlas = null;
         MediaRouterService mediaRouter = null;
         GestureService gestureService = null;
+        EdgeGestureService edgeGestureService = null;
 
         // Bring up services needed for UI.
         if (mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
@@ -1046,6 +1048,12 @@ public final class SystemServer {
               } catch (Throwable e) {
                   reportWtf("starting DigitalPenService", e);
               }
+            try {
+                Slog.i(TAG, "EdgeGesture service");
+                edgeGestureService = new EdgeGestureService(context, inputManager);
+                ServiceManager.addService("edgegestureservice", edgeGestureService);
+            } catch (Throwable e) {
+                Slog.e(TAG, "Failure starting EdgeGesture service", e);
             }
         }
 
@@ -1141,6 +1149,13 @@ public final class SystemServer {
                 gestureService.systemReady();
             } catch (Throwable e) {
                 reportWtf("making Gesture Sensor Service ready", e);
+		}
+	
+        if (edgeGestureService != null) {
+            try {
+                edgeGestureService.systemReady();
+            } catch (Throwable e) {
+                reportWtf("making EdgeGesture service ready", e);
             }
         }
 
