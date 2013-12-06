@@ -231,8 +231,8 @@ public class StorageNotification extends SystemUI {
                     com.android.internal.R.string.ext_media_nomedia_notification_title,
                     com.android.internal.R.string.ext_media_nomedia_notification_message,
                     com.android.internal.R.drawable.stat_notify_sdcard_usb,
-                    true, !isPrimary, null);
-            updateUsbMassStorageNotification(isPrimary ? false : mUmsAvailable);
+                    true, true, null);
+            updateUsbMassStorageNotification(false);
         } else if (newState.equals(Environment.MEDIA_BAD_REMOVAL)) {
             /*
              * Storage has been removed unsafely. Show bad removal media notification,
