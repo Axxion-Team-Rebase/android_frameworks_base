@@ -143,6 +143,39 @@ public class BassBoost extends AudioEffect {
     }
 
     /**
+     * Sets the center frequency of the bass boost effect.
+     * @param freq The frequency, in Hz. The valid range for the freq is [20,500]
+     * @throws IllegalStateException
+     * @throws IllegalArgumentException
+     * @throws UnsupportedOperationException
+     */
+    public void setCenterFrequency(short freq)
+    throws IllegalStateException, IllegalArgumentException, UnsupportedOperationException {
+        try {
+            checkStatus(setParameter(PARAM_CENTER_FREQUENCY, freq));
+        } catch(IllegalArgumentException e) {
+            // ignore
+        }
+    }
+
+    /**
+     * Gets the current center frequency of the effect
+     * @return the center frequency of the effect. The valid range is [20,500], in Hertz
+     * @throws IllegalStateException
+     * @throws IllegalArgumentException
+     * @throws UnsupportedOperationException
+     */
+    public short getCenterFrequency() {
+        try {
+            short[] value = new short[1];
+            checkStatus(getParameter(PARAM_CENTER_FREQUENCY, value));
+            return value[0];
+        } catch(IllegalArgumentException e) {
+            return 55;
+        }
+    }
+
+    /**
      * The OnParameterChangeListener interface defines a method called by the BassBoost when a
      * parameter value has changed.
      */
