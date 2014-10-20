@@ -16,9 +16,9 @@
 
 package com.android.systemui.statusbar.phone;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
 import android.animation.LayoutTransition;
 import android.animation.LayoutTransition.TransitionListener;
 import android.animation.ObjectAnimator;
@@ -37,6 +37,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -146,8 +147,11 @@ public class NavigationBarView extends LinearLayout {
     int mDisabledFlags = 0;
     int mNavigationIconHints = 0;
 
-    private BackButtonDrawable mBackIcon, mBackLandIcon, mBackAltIcon;
+	// DSB 
+	private int mPreviousOverrideIconColor = 0;
+    private int mOverrideIconColor = 0;
 
+    private BackButtonDrawable mBackIcon, mBackLandIcon, mBackAltIcon;
     private Drawable mRecentIcon;
     private Drawable mRecentLandIcon;
 
@@ -183,6 +187,8 @@ public class NavigationBarView extends LinearLayout {
     private boolean mDelegateIntercepted;
 
     private SettingsObserver mSettingsObserver;
+
+    private final int mDSBDuration;
 
     private class NavTransitionListener implements TransitionListener {
         private boolean mBackTransitioning;
@@ -281,7 +287,62 @@ public class NavigationBarView extends LinearLayout {
         mButtonIdList = new ArrayList<Integer>();
 
         mSettingsObserver = new SettingsObserver(new Handler());
+        
+        mDSBDuration = context.getResources().getInteger(R.integer.dsb_transition_duration);
+        BarBackgroundUpdater.addListener(new BarBackgroundUpdater.UpdateListener(this) {
+
+            @Override
+            public Animator onUpdateNavigationBarIconColor(final int previousIconColor,
+                    final int iconColor) {
+                mPreviousOverrideIconColor = previousIconColor;
+                mOverrideIconColor = iconColor;
+
+                return generateButtonColorsAnimatorSet();
+            }
+
+        });
     }
+
+    private AnimatorSet generateButtonColorsAnimatorSet() {
+        final ImageView[] buttons = new ImageView[] {
+            (ImageView) getCustomButton(),
+            (ImageView) getRecentsButton(),
+            (ImageView) getLeftMenuButton(),
+            (ImageView) getBackButton(),
+            (ImageView) getHomeButton(),
+            (ImageView) getImeSwitchButton(),
+            (ImageView) getLeftImeArrowButton(),
+        };
+
+        final ArrayList<Animator> anims = new ArrayList<Animator>();
+
+        for (final ImageView button : buttons) {
+            if (button != null) {
+                if (mOverrideIconColor == 0) {
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            button.setColorFilter(null);
+                        }
+
+                    });
+                } else {
+                    anims.add(ObjectAnimator.ofObject(button, "colorFilter",
+                            new ArgbEvaluator(), mPreviousOverrideIconColor,
+                            mOverrideIconColor).setDuration(mDSBDuration));
+                }
+            }
+        }
+
+        if (anims.isEmpty()) {
+            return null;
+        } else {
+            final AnimatorSet animSet = new AnimatorSet();
+            animSet.playTogether(anims);
+            return animSet;
+        }
+     }
 
     @Override
     protected void onAttachedToWindow() {
@@ -1167,7 +1228,6 @@ public class NavigationBarView extends LinearLayout {
         mRotatedViews[Surface.ROTATION_0] =
                 mRotatedViews[Surface.ROTATION_180] = findViewById(R.id.rot0);
         mRotatedViews[Surface.ROTATION_90] = findViewById(R.id.rot90);
-
         mRotatedViews[Surface.ROTATION_270] = mRotatedViews[Surface.ROTATION_90];
 
         mCurrentView = mRotatedViews[Surface.ROTATION_0];
@@ -1177,6 +1237,17 @@ public class NavigationBarView extends LinearLayout {
             getImeSwitchButton().setOnClickListener(mImeSwitcherClickListener);
 
         updateRTLOrder();
+        
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final AnimatorSet animSet = generateButtonColorsAnimatorSet();
+                if (animSet != null) {
+                    animSet.start();
+                }
+            }
+        });
+
     }
 
     public boolean isVertical() {
@@ -1224,6 +1295,16 @@ public class NavigationBarView extends LinearLayout {
         updateTaskSwitchHelper();
 
         setNavigationIconHints(mNavigationIconHints, true);
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final AnimatorSet animSet = generateButtonColorsAnimatorSet();
+                if (animSet != null) {
+                    animSet.start();
+                }
+            }
+        });
     }
 
     private void updateTaskSwitchHelper() {

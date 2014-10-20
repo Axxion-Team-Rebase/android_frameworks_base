@@ -25,5 +25,8 @@
 
     <!-- Whether to enable data switch or not -->
     <bool name="config_enableDataSwitch">true</bool>
+    
+    <!-- DSB color transiion duration (ms) -->
+    <integer name="dsb_transition_duration">500</integer>    
 </resources>
 
