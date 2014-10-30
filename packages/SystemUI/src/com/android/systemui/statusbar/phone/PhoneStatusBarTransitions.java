@@ -180,7 +180,10 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
 
         public void setOverrideGradientAlpha(final int alpha) {
             mOverrideGradientAlpha = alpha;
-            generateAnimator().start();
+            try {
+                generateAnimator().start();
+            } catch (Exception e) {
+            }
         }
     }
 
