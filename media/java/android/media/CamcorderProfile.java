@@ -91,10 +91,15 @@ public class CamcorderProfile
     public static final int QUALITY_QVGA = 7;
 
     /**
-     * Quality level corresponding to the 2160p (3840 x 2160) resolution.
+     * {@hide}
+     * Quality level corresponding to the 2160p (3840x2160) resolution.
      */
     public static final int QUALITY_2160P = 8;
 
+    /** @hide
+     * Quality level corresponding to the FWVGA resolution.
+     */
+    public static final int QUALITY_FWVGA = 9;
     /** @hide
      * Quality level corresponding to the WVGA resolution.
      */
