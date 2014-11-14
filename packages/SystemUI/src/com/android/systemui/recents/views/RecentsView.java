@@ -68,6 +68,8 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
     View mSearchBar;
     RecentsViewCallbacks mCb;
     View mClearRecents;
+    
+    boolean mAlreadyLaunchingTask;
 
     public RecentsView(Context context) {
         super(context);
@@ -326,6 +328,14 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
         mConfig.getTaskStackBounds(width, height, mConfig.systemInsets.top,
                 mConfig.systemInsets.right, taskStackBounds);
 
+        if (mClearRecents != null) {
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)
+                    mClearRecents.getLayoutParams();
+            params.topMargin = taskStackBounds.top;
+            params.rightMargin = width - taskStackBounds.right;
+            mClearRecents.setLayoutParams(params);
+        }
+
         // Measure each TaskStackView with the full width and height of the window since the 
         // transition view is a child of that stack view
         int childCount = getChildCount();
@@ -387,7 +397,6 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
 
                 // Hide clear recents button before dismiss all tasks
                 startHideClearRecentsButtonAnimation();
-
                 dismissAllTasksAnimated();
             }
         });
