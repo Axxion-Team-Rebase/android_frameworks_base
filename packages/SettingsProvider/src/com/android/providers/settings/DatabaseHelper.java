@@ -2394,6 +2394,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadUISoundEffectsSettings(stmt);
 
+            loadIntegerSetting(stmt, Settings.System.NAVBAR_FORCE_ENABLE,
+                    R.integer.def_force_disable_navkeys);
+
             loadIntegerSetting(stmt, Settings.System.POINTER_SPEED,
                     R.integer.def_pointer_speed);
 
@@ -2407,7 +2410,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         R.string.def_date_format);
             }
 
-            loadIntegerSetting(stmt, Settings.System.DEV_FORCE_SHOW_NAVBAR,
+            loadStringSetting(stmt, Settings.System.DATE_FORMAT,
+                    R.string.def_date_format);
+                    
+            loadIntegerSetting(stmt, Settings.System.NAVBAR_FORCE_ENABLE,
                     R.integer.def_force_disable_navkeys);
         } finally {
             if (stmt != null) stmt.close();
