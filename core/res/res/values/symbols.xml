@@ -2288,4 +2288,7 @@
 
   <!-- From SignalStrength -->
   <java-symbol type="integer" name="config_LTE_RSRP_threshold_type" />
+
+  <!-- omni additions -->
+  <java-symbol type="bool" name="config_offscreenGestureSupport" />
 </resources>
