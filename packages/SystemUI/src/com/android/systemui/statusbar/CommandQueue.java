@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -60,6 +61,7 @@ public class CommandQueue extends IStatusBar.Stub {
     private static final int MSG_HIDE_HEADS_UP              = 19 << MSG_SHIFT;
     private static final int MSG_ANIMATE_PANEL_FROM_NAVBAR  = 20 << MSG_SHIFT;
     private static final int MSG_SET_AUTOROTATE_STATUS      = 21 << MSG_SHIFT;
+    private static final int MSG_START_CUSTOM_INTENT_AFTER_KEYGUARD = 22 << MSG_SHIFT;
 
     public static final int FLAG_EXCLUDE_NONE = 0;
     public static final int FLAG_EXCLUDE_SEARCH_PANEL = 1 << 0;
@@ -106,6 +108,7 @@ public class CommandQueue extends IStatusBar.Stub {
         public void scheduleHeadsUpClose();
         public void showScreenPinningRequest();
         public void setAutoRotate(boolean enabled);
+        public void showCustomIntentAfterKeyguard(Intent intent);
     }
 
     public CommandQueue(Callbacks callbacks, StatusBarIconList list) {
@@ -279,6 +282,12 @@ public class CommandQueue extends IStatusBar.Stub {
         }
     }
 
+    public void showCustomIntentAfterKeyguard(Intent intent) {
+        mHandler.removeMessages(MSG_START_CUSTOM_INTENT_AFTER_KEYGUARD);
+        Message m = mHandler.obtainMessage(MSG_START_CUSTOM_INTENT_AFTER_KEYGUARD, 0, 0, intent);
+        m.sendToTarget();
+    }
+
     private final class H extends Handler {
         public void handleMessage(Message msg) {
             final int what = msg.what & MSG_MASK;
@@ -369,6 +378,9 @@ public class CommandQueue extends IStatusBar.Stub {
                     break;
                 case MSG_SET_AUTOROTATE_STATUS:
                     mCallbacks.setAutoRotate(msg.arg1 != 0);
+                    break;
+                case MSG_START_CUSTOM_INTENT_AFTER_KEYGUARD:
+                    mCallbacks.showCustomIntentAfterKeyguard((Intent) msg.obj);
                     break;
             }
         }
