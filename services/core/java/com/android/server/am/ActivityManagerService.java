@@ -90,6 +90,8 @@ import com.android.server.pm.UserManagerService;
 import com.android.server.statusbar.StatusBarManagerInternal;
 import com.android.server.wm.AppTransition;
 import com.android.server.wm.WindowManagerService;
+import com.android.server.power.PowerManagerService;
+
 import com.google.android.collect.Lists;
 import com.google.android.collect.Maps;
 
@@ -1181,6 +1183,7 @@ public final class ActivityManagerService extends ActivityManagerNative
     int mProcessLimitOverride = -1;
 
     WindowManagerService mWindowManager;
+    PowerManagerService mPowerManager;
 
     final ActivityThread mSystemThread;
 
@@ -2014,6 +2017,10 @@ public final class ActivityManagerService extends ActivityManagerNative
     public void setWindowManager(WindowManagerService wm) {
         mWindowManager = wm;
         mStackSupervisor.setWindowManager(wm);
+    }
+
+    public void setPowerManager(PowerManagerService ps) {
+        mPowerManager = ps;
     }
 
     public void setUsageStatsManager(UsageStatsManagerInternal usageStatsManager) {
