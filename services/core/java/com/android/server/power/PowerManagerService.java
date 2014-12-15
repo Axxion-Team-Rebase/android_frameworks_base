@@ -433,6 +433,10 @@ public final class PowerManagerService extends SystemService
 
     //track the blocked uids.
     private final ArrayList<Integer> mBlockedUids = new ArrayList<Integer>();
+    
+    // power profile support
+    private PowerProfileManager mProfileManager;
+    private boolean mProfilesSupported;
 
     private native void nativeInit();
 
@@ -441,6 +445,7 @@ public final class PowerManagerService extends SystemService
     private static native void nativeSetInteractive(boolean enable);
     private static native void nativeSetAutoSuspend(boolean enable);
     private static native void nativeSendPowerHint(int hintId, int data);
+    private static native void nativeSendPowerHintString(int hintId, String data);
 
     public PowerManagerService(Context context) {
         super(context);
@@ -583,6 +588,10 @@ public final class PowerManagerService extends SystemService
                     false, mSettingsObserver, UserHandle.USER_ALL);
             // Go.
             readConfigurationLocked();
+            if (mProfilesSupported) {
+                mProfileManager = new PowerProfileManager(mContext, this);
+                mProfileManager.init();
+            }
             updateSettingsLocked();
             mDirty |= DIRTY_BATTERY_STATE;
             updatePowerStateLocked();
@@ -626,6 +635,9 @@ public final class PowerManagerService extends SystemService
                 com.android.internal.R.integer.config_maximumScreenDimDuration);
         mMaximumScreenDimRatioConfig = resources.getFraction(
                 com.android.internal.R.fraction.config_maximumScreenDimRatio, 1, 1);
+        mProfilesSupported = resources.getBoolean(
+                com.android.internal.R.bool.config_powerProfilesSupported);
+
     }
 
     private void updateSettingsLocked() {
@@ -685,7 +697,6 @@ public final class PowerManagerService extends SystemService
             mAutoLowPowerModeConfigured = autoLowPowerModeConfigured;
             updateLowPowerModeLocked();
         }
-
         mDirty |= DIRTY_SETTINGS;
     }
 
@@ -705,7 +716,11 @@ public final class PowerManagerService extends SystemService
 
         if (mLowPowerModeEnabled != lowPowerModeEnabled) {
             mLowPowerModeEnabled = lowPowerModeEnabled;
-            powerHintInternal(POWER_HINT_LOW_POWER, lowPowerModeEnabled ? 1 : 0);
+            if (mProfilesSupported) {
+                mProfileManager.setLowPowerMode(mLowPowerModeEnabled);
+            } else {
+                powerHintInternal(POWER_HINT_LOW_POWER, lowPowerModeEnabled ? 1 : 0);
+            }
             BackgroundThread.getHandler().post(new Runnable() {
                 @Override
                 public void run() {
@@ -1368,6 +1383,7 @@ public final class PowerManagerService extends SystemService
                 if (dockedOnWirelessCharger) {
                     mNotifier.onWirelessChargingStarted();
                 }
+
             }
 
             if (wasPowered != mIsPowered || oldLevelLow != mBatteryLevelLow) {
@@ -1378,6 +1394,13 @@ public final class PowerManagerService extends SystemService
                     mAutoLowPowerModeSnoozing = false;
                 }
                 updateLowPowerModeLocked();
+            }
+
+            // must be AFTER updateLowPowerModeLocked
+            if (wasPowered != mIsPowered) {
+                if (mProfilesSupported) {
+                    mProfileManager.setPowerPlugged(mIsPowered);
+                }
             }
         }
     }
@@ -2194,6 +2217,9 @@ public final class PowerManagerService extends SystemService
             Trace.traceBegin(Trace.TRACE_TAG_POWER, "setHalInteractive(" + enable + ")");
             try {
                 nativeSetInteractive(enable);
+                if (mProfilesSupported) {
+                    mProfileManager.handleScreenChange(enable);
+                }
             } finally {
                 Trace.traceEnd(Trace.TRACE_TAG_POWER);
             }
@@ -2421,6 +2447,10 @@ public final class PowerManagerService extends SystemService
 
     private void powerHintInternal(int hintId, int data) {
         nativeSendPowerHint(hintId, data);
+    }
+
+    public void powerHintStringInternal(int hintId, String data) {
+        nativeSendPowerHintString(hintId, data);
     }
 
     /**
@@ -2696,6 +2726,27 @@ public final class PowerManagerService extends SystemService
                     handleScreenBrightnessBoostTimeout();
                     break;
             }
+        }
+    }
+
+    public void handleAppChange(Intent app) {
+        if (mProfilesSupported) {
+            if (mHalInteractiveModeEnabled) {
+                mProfileManager.handleAppChange(app);
+            }
+        }
+    }
+
+    private String getCurrentPowerProfileInternal() {
+        if (mProfilesSupported) {
+            return mProfileManager.getCurrentPowerProfile();
+        }
+        return "disabled";
+    }
+
+    private void setPowerProfileInternal(String profile) {
+        if (mProfilesSupported) {
+            mProfileManager.setPowerProfile(profile);
         }
     }
 
@@ -3341,6 +3392,34 @@ public final class PowerManagerService extends SystemService
                 else {
                     mBlockedUids.remove(new Integer(uid));
                 }
+            }
+        }
+        
+        @Override // Binder call
+        public String getCurrentPowerProfile() {
+            if (!mSystemReady) {
+                // Service not ready yet
+                return null;
+            }
+            final long ident = Binder.clearCallingIdentity();
+            try {
+                return getCurrentPowerProfileInternal();
+            } finally {
+                Binder.restoreCallingIdentity(ident);
+            }
+        }
+
+        @Override // Binder call
+        public void setPowerProfile(String profile) {
+            if (!mSystemReady) {
+                // Service not ready yet
+                return;
+            }
+            final long ident = Binder.clearCallingIdentity();
+            try {
+                setPowerProfileInternal(profile);
+            } finally {
+                Binder.restoreCallingIdentity(ident);
             }
         }
     }

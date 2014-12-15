@@ -24,4 +24,28 @@
     <!-- Size of the date font in keyguard's status view -->
     <dimen name="kg_status_date_font_size">10dp</dimen>
 
+    <!-- If this is true, key chords can be used to take a screen record on the device. -->
+    <bool name="config_enableScreenrecordChord">true</bool>
+
+    <!-- Hardware 'face' keys present on the device, stored as a bit field.
+         This integer should equal the sum of the corresponding value for each
+         of the following keys present:
+             1 - Home
+             2 - Back
+             4 - Menu
+             8 - Assistant (search)
+            16 - App switch
+         For example, a device with Home, Back and Menu keys would set this
+         config to 7. -->
+    <integer name="config_deviceHardwareKeys">0</integer>
+
+    <integer name="config_backKillTimeout">2000</integer>
+
+    <string-array translatable="false" name="config_rebootActionsList">
+        <item>reboot</item>
+        <item>reboot_recovery</item>
+        <item>reboot_bootloader</item>
+    </string-array>
+
+    <bool name="config_powerProfilesSupported">false</bool>
 </resources>
