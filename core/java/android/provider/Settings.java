@@ -3847,6 +3847,13 @@ public final class Settings {
          */
         public static final String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
 
+        /**
+         * Whether navigation bar is placed on the left side in landscape mode
+         *
+         * @hide
+         */
+        public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
+
 		/**
          * Volume music controls
          * @hide
