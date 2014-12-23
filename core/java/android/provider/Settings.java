@@ -3359,10 +3359,6 @@ public final class Settings {
          */
         public static final String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
 
-<<<<<<< HEAD
-		/**
-         * Volume music controls
-=======
         /**
          * Navigation bar button color
          * @hide
@@ -3419,6 +3415,7 @@ public final class Settings {
         public static final String NAVIGATION_BAR_CONFIG = "navigation_bar_config";
 
         /**
+<<<<<<< HEAD
          * Wether the navbar menu button is on the left/right/both
          * @hide
          */
@@ -3431,9 +3428,14 @@ public final class Settings {
         public static final String MENU_VISIBILITY = "menu_visibility";
 
         /**
-         * Whether to vibrate when quick settings tile is pressed.
+         * Whether navigation bar is placed on the left side in landscape mode
          *
->>>>>>> f6d9861... fb: Slims navbar customizations
+         * @hide
+         */
+        public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
+
+		/**
+         * Volume music controls
          * @hide
          */
         public static final String VOLUME_MUSIC_CONTROLS = "volume_music_controls";
