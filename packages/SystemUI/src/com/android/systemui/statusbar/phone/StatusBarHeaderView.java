@@ -35,8 +35,12 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Outline;
 import android.graphics.Rect;
+import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.graphics.Outline;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
@@ -163,6 +167,10 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
 
     private int mStatusBarPowerMenuStyle;
 
+    private SettingsObserver mSettingsObserver;
+    private int mTextColor;
+    private int mIconColor;
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -205,6 +213,8 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         updateVisibilities();
         updateClockScale();
         updateAvatarScale();
+        updateTextColor();
+        updateIconColor();
         addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right,
@@ -365,6 +375,8 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         updateAvatarScale();
         updateClockLp();
         requestCaptureValues();
+        updateTextColor();
+        updateIconColor();
     }
 
     private void updateHeights() {
@@ -389,8 +401,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
             updateSignalClusterDetachment();
         }
         mEmergencyCallsOnly.setVisibility(mExpanded && mShowEmergencyCallsOnly ? VISIBLE : GONE);
-        mBatteryLevel.setForceShown(mExpanded && mShowBatteryTextExpanded);
-        mBatteryLevel.setVisibility(View.VISIBLE);
+        mBatteryLevel.setVisibility(mExpanded && mShowBatteryLevel? View.VISIBLE : View.GONE);
     }
 
     private void updateSignalClusterDetachment() {
@@ -929,7 +940,79 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                     .start();
         }
     };
-	
+  
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_EXPANDED_HEADER_TEXT_COLOR),
+                    false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_EXPANDED_HEADER_ICON_COLOR),
+                    false, this);
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+			if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_EXPANDED_HEADER_TEXT_COLOR))) {
+                updateTextColor();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_EXPANDED_HEADER_ICON_COLOR))) {
+                updateIconColor();
+            }
+
+        }
+
+        public void update() {
+            ContentResolver resolver = mContext.getContentResolver();
+            mTextColor = Settings.System.getInt(resolver,
+                    Settings.System.STATUS_BAR_EXPANDED_HEADER_TEXT_COLOR, 0xffffffff);
+            mIconColor = Settings.System.getInt(resolver,
+                    Settings.System.STATUS_BAR_EXPANDED_HEADER_ICON_COLOR, 0xffffffff);
+            updateVisibilities();
+            updateTextColor();
+            updateIconColor();
+        }
+    }
+
+    private void updateTextColor() {
+        mTime.setTextColor(mTextColor);
+        mAmPm.setTextColor(mTextColor);
+        mDateCollapsed.setTextColor(
+                getTransparentColor(mTextColor, 178));
+        mDateExpanded.setTextColor(
+                getTransparentColor(mTextColor, 178));
+        mBatteryLevel.setTextColor(mTextColor);
+        mAlarmStatus.setTextColor(
+                getTransparentColor(mTextColor, 100));
+    }
+
+    private void updateIconColor() {
+        ((ImageView)mSettingsButton).setColorFilter(mIconColor, Mode.MULTIPLY);
+        Drawable alarmIcon = getResources().getDrawable(R.drawable.ic_access_alarms_small);
+        alarmIcon.setColorFilter(mIconColor, Mode.MULTIPLY);
+        mAlarmStatus.setCompoundDrawablesWithIntrinsicBounds(alarmIcon, null, null, null);
+        ((ImageView)mStatusBarPowerMenu).setColorFilter(mIconColor, Mode.MULTIPLY);
+    }
+
+    private int getTransparentColor(int color, int alpha) {
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+        int transparentColor = (alpha << 24) + (r << 16) + (g << 8) + b;
+        return transparentColor;
+    }
+  
+    /*     
+     *    STATUS BAR POWER MENU CODE
+     */
+
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -961,52 +1044,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         }
         return false;
     }
-    
-    class SettingsObserver extends ContentObserver {
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BATTERY_STYLE), false, this);
-            update();
-        }
-
-        void unobserve() {
-            mContext.getContentResolver().unregisterContentObserver(this);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            update();
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            update();
-        }
-
-        public void update() {
-            int batteryStyle =
-                    Settings.System.getIntForUser(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_BATTERY_STYLE, 0, ActivityManager.getCurrentUser());
-            boolean showExpandedBatteryPercentage =
-                    Settings.System.getIntForUser(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_SHOW_BATTERY_PERCENT, 0, ActivityManager.getCurrentUser()) == 0;
-
-            switch (batteryStyle) {
-                case 4: // BATTERY_METER_GONE
-                case 5: // BATTERY_METER_TEXT
-                    showExpandedBatteryPercentage = false;
-                    break;
-                default:
-                    break;
-            }
-
-            mShowBatteryTextExpanded = showExpandedBatteryPercentage;
-            updateVisibilities();
-            requestCaptureValues();
-        }
-    }
+    /*
+     * Finish status bar powermenu
+     */ 
 }
