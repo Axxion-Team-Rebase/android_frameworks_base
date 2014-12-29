@@ -293,14 +293,10 @@ public class VolumePanel extends Handler implements DemoMode {
     private ContentObserver mSettingsObserver = new ContentObserver(this) {
         @Override
         public void onChange(boolean selfChange) {
-<<<<<<< HEAD
             mVolumeLinkNotification = Settings.System.getInt(mContext.getContentResolver(),
-=======
+                    Settings.System.VOLUME_LINK_NOTIFICATION, 1) == 1;
             mVolumeAdjustSound = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.VOLUME_ADJUST_SOUND, 1) == 1;
-            mLinkNotificationWithVolume = Settings.System.getInt(mContext.getContentResolver(),
->>>>>>> 26e25cd... base: bring back silent mode
-                    Settings.System.VOLUME_LINK_NOTIFICATION, 1) == 1;
         }
     };
 
@@ -408,6 +404,7 @@ public class VolumePanel extends Handler implements DemoMode {
             arr.recycle();
         }
 
+        if (parent == null) {
             mDialog = new Dialog(context) {
                 @Override
                 public boolean onTouchEvent(MotionEvent event) {
@@ -461,6 +458,54 @@ public class VolumePanel extends Handler implements DemoMode {
                 resetTimeout();
             }
         });
+=======
+            };
+
+            final Window window = mDialog.getWindow();
+            window.requestFeature(Window.FEATURE_NO_TITLE);
+            mDialog.setCanceledOnTouchOutside(true);
+            mDialog.setContentView(com.android.systemui.R.layout.volume_dialog);
+            mDialog.setOnDismissListener(new OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mActiveStreamType = -1;
+                    mAudioManager.forceVolumeControlStream(mActiveStreamType);
+                    setZenPanelVisible(false);
+                }
+            });
+
+            mDialog.create();
+
+            final LayoutParams lp = window.getAttributes();
+            lp.token = null;
+            lp.y = res.getDimensionPixelOffset(com.android.systemui.R.dimen.volume_panel_top);
+            lp.type = LayoutParams.TYPE_STATUS_BAR_PANEL;
+            lp.format = PixelFormat.TRANSLUCENT;
+            lp.windowAnimations = com.android.systemui.R.style.VolumePanelAnimation;
+            lp.setTitle(TAG);
+            window.setAttributes(lp);
+
+            updateWidth();
+
+            window.setBackgroundDrawable(new ColorDrawable(0x00000000));
+            window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.addFlags(LayoutParams.FLAG_NOT_FOCUSABLE
+                    | LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+                    | LayoutParams.FLAG_HARDWARE_ACCELERATED);
+            mView = window.findViewById(R.id.content);
+            Interaction.register(mView, new Interaction.Callback() {
+                @Override
+                public void onInteraction() {
+                    resetTimeout();
+                }
+            });
+        } else {
+            mDialog = null;
+            mView = LayoutInflater.from(mContext).inflate(
+                    com.android.systemui.R.layout.volume_panel, parent, false);
+        }
+>>>>>>> f6b53a5... Customizeable QS Tiles (1/2) Squashed
 
         mPanel = (ViewGroup) mView.findViewById(com.android.systemui.R.id.visible_panel);
         mSliderPanel = (ViewGroup) mView.findViewById(com.android.systemui.R.id.slider_panel);
@@ -502,8 +547,26 @@ public class VolumePanel extends Handler implements DemoMode {
         final boolean masterVolumeKeySounds = res.getBoolean(R.bool.config_useVolumeKeySounds);
         mPlayMasterStreamTones = masterVolumeOnly && masterVolumeKeySounds;
 
+        mSliderPanelExpand = (LinearLayout) mView.findViewById(com.android.systemui.R.id.slider_panel_expand);
+        mExpandPanel = (ImageView) mView.findViewById(com.android.systemui.R.id.arrow);
+        mExpandPanel.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mExtendedPanelExpanded) {
+                    hideVolumePanel();
+                } else {
+                    expandVolumePanel();
+                }
+                updateZenPanelVisible();
+                mExpandPanel.setRotation(mExtendedPanelExpanded ? 180 : 0);
+                Settings.System.putInt(mContext.getContentResolver(),
+                        Settings.System.VOLUME_PANEL_EXPANDED, mExtendedPanelExpanded ? 1 : 0);
+                resetTimeout();
+            }
+        });
+        mExpandPanel.setRotation(mExtendedPanelExpanded ? 180 : 0);
+        mSliderPanelExpand.setGravity(Gravity.TOP);
         registerReceiver();
-
         mBlurUiSettingObserver.onChange(true);
         //mContext.getContentResolver().registerContentObserver(
             //Settings.System.getUriFor(Settings.System.BLUR_EFFECT_VOLUMECONTROL), false,
@@ -1039,10 +1102,6 @@ public class VolumePanel extends Handler implements DemoMode {
     private void updateSliderEnabled(final StreamControl sc, boolean muted, boolean fixedVolume) {
         final boolean wasEnabled = sc.seekbarView.isEnabled();
         final boolean isRinger = isNotificationOrRing(sc.streamType);
-<<<<<<< HEAD
-        final boolean isUnlinkedNotification =
-                !mVolumeLinkNotification && sc.streamType == AudioManager.STREAM_NOTIFICATION;
-=======
         boolean enableClick = false;
         if (mLinkNotificationWithVolume) {
             enableClick = isRinger;
@@ -1052,7 +1111,6 @@ public class VolumePanel extends Handler implements DemoMode {
         if (LOGD) Log.d(mTag, "updateSliderEnabled(streamType: " + streamToString(sc.streamType)
                 + ", muted: " + muted + ", isRinger: " + isRinger + ", ringerMode: " + mAudioManager.getRingerModeInternal() + ")");
 
->>>>>>> 26e25cd... base: bring back silent mode
         if (sc.streamType == STREAM_REMOTE_MUSIC) {
             // never disable touch interactions for remote playback, the muting is not tied to
             // the state of the phone.
@@ -1067,14 +1125,7 @@ public class VolumePanel extends Handler implements DemoMode {
                 (sc.streamType != mAudioManager.getMasterStreamType() && !isRinger && muted) ||
                 (sSafetyWarning != null)) {
             sc.seekbarView.setEnabled(false);
-<<<<<<< HEAD
-            if (isUnlinkedNotification) {
-                sc.icon.setEnabled(false);
-                sc.icon.setAlpha(mDisabledAlpha);
-            }
-=======
             sc.icon.setClickable(true);
->>>>>>> 26e25cd... base: bring back silent mode
         } else {
             sc.seekbarView.setEnabled(true);
             sc.icon.setClickable(true);
@@ -1083,11 +1134,7 @@ public class VolumePanel extends Handler implements DemoMode {
         if ((isRinger || isUnlinkedNotification) && wasEnabled != sc.seekbarView.isEnabled()) {
             if (sc.seekbarView.isEnabled()) {
                 sc.group.setOnTouchListener(null);
-<<<<<<< HEAD
-                sc.icon.setClickable(isRinger && mHasVibrator);
-=======
                 sc.icon.setClickable(true);
->>>>>>> 26e25cd... base: bring back silent mode
             } else {
                 final View.OnTouchListener showHintOnTouch = new View.OnTouchListener() {
                     @Override
@@ -1301,17 +1348,11 @@ public class VolumePanel extends Handler implements DemoMode {
             }
         }
 
-<<<<<<< HEAD
-        if ((flags & AudioManager.FLAG_PLAY_SOUND) != 0 && !mRingIsSilent) {
-            removeMessages(MSG_PLAY_SOUND);
-            sendMessageDelayed(obtainMessage(MSG_PLAY_SOUND, streamType, flags), PLAY_SOUND_DELAY);
-=======
         if ((flags & AudioManager.FLAG_PLAY_SOUND) != 0) {
             if (mVolumeAdjustSound) {
                 removeMessages(MSG_PLAY_SOUND);
                 sendMessageDelayed(obtainMessage(MSG_PLAY_SOUND, streamType, flags), PLAY_SOUND_DELAY);
             }
->>>>>>> 26e25cd... base: bring back silent mode
         }
 
         if ((flags & AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE) != 0) {
@@ -1459,14 +1500,7 @@ public class VolumePanel extends Handler implements DemoMode {
                     mZenPanel.setAlpha(0); mZenPanel.animate().alpha(1);
                 }
                 updateSliderIcon(sc, muted);
-<<<<<<< HEAD
-                // If an unlinked notification slider is visible, update it as well
-                if (mVoiceCapable && !mVolumeLinkNotification && mExtendedPanelExpanded) {
-                    updateNotificationSlider(false);
-                }
-=======
                 updateSecondaryIcon(sc);
->>>>>>> 26e25cd... base: bring back silent mode
             }
         }
 
@@ -1531,15 +1565,6 @@ public class VolumePanel extends Handler implements DemoMode {
     }
 
     protected void onPlaySound(int streamType, int flags) {
-<<<<<<< HEAD
-        // Just return if we disabled slider sound while adjusting volume
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                 Settings.System.VOLUME_ADJUST_SOUND_ENABLED, 1) == 0) {
-             return;
-        }
-
-=======
->>>>>>> 26e25cd... base: bring back silent mode
         if (hasMessages(MSG_STOP_SOUNDS)) {
             removeMessages(MSG_STOP_SOUNDS);
             // Force stop right now

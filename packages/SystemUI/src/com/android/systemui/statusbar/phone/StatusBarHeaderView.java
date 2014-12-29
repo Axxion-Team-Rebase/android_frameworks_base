@@ -192,6 +192,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         if (getResources().getBoolean(R.bool.config_showTaskManagerSwitcher)) {
             mTaskManagerButton = findViewById(R.id.task_manager_button);
         }
+		mSettingsButton.setOnLongClickListener(this);
         mQsDetailHeader = findViewById(R.id.qs_detail_header);
         mQsDetailHeader.setAlpha(0);
         mQsDetailHeaderTitle = (TextView) mQsDetailHeader.findViewById(android.R.id.title);
@@ -591,6 +592,26 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         } else if (v == mStatusBarPowerMenu) {
             statusBarPowerMenuAction();
         }
+        mQSPanel.vibrateTile(20);
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (v == mSettingsButton) {
+	    mSettingsButton.setLongClickable(true);
+	    Intent intent = new Intent(Intent.ACTION_MAIN);
+	    intent.setClassName("com.android.settings",
+				"com.android.settings.Settings$QSTilesSettingsActivity");
+            mActivityStarter.startActivity(intent,
+                    true /* dismissShade */);
+        } else if (v == mStatusBarPowerMenu) {
+            if (mStatusBarPowerMenuStyle == STATUS_BAR_POWER_MENU_DEFAULT) {
+                triggerPowerMenuDialog();
+            } else if (mStatusBarPowerMenuStyle == STATUS_BAR_POWER_MENU_INVERTED) {
+                goToSleep();
+            }
+        }
+        return false;
     }
 
     private void startSettingsActivity() {
@@ -1032,18 +1053,6 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         pm.goToSleep(SystemClock.uptimeMillis());
     }   
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (v == mStatusBarPowerMenu) {
-            if (mStatusBarPowerMenuStyle == STATUS_BAR_POWER_MENU_DEFAULT) {
-                triggerPowerMenuDialog();
-            } else if (mStatusBarPowerMenuStyle == STATUS_BAR_POWER_MENU_INVERTED) {
-                goToSleep();
-            }
-        }
-        return false;
-    }
     /*
      * Finish status bar powermenu
      */ 

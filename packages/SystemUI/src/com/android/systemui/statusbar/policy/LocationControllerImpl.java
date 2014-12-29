@@ -159,7 +159,8 @@ public class LocationControllerImpl extends BroadcastReceiver implements Locatio
         // setting won't be fully enabled until the user accepts the agreement.   
         // QuickSettings always runs as the owner, so specifically set the settings
         // for the current foreground user.
-        return Settings.Secure.putIntForUser(cr, Settings.Secure.LOCATION_MODE, mode, currentUserId);
+        return Settings.Secure.putIntForUser(cr, Settings.Secure.LOCATION_MODE,
+                mode, currentUserId);
     }
 
     /**
