@@ -75,6 +75,7 @@ public class FlashlightTile extends QSTile<QSTile.BooleanState> implements
         boolean newState = !mState.value;
         mTorchManager.setTorchEnabled(newState);
         refreshState(newState);
+        qsCollapsePanel();
     }
 
     @Override

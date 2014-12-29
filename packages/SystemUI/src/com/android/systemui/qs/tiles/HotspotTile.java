@@ -75,24 +75,22 @@ public class HotspotTile extends QSTile<QSTile.BooleanState> {
         mController.setHotspotEnabled(!isEnabled);
         mEnable.setAllowAnimation(true);
         mDisable.setAllowAnimation(true);
+        qsCollapsePanel();
+    }
+
+    @Override
+    protected void handleSecondaryClick() {
+        mHost.startSettingsActivity(WIRELESS_SETTINGS);
     }
 
     @Override
     protected void handleLongClick() {
-        if (mState.value) return;  // don't allow usage reset if hotspot is active
-        final String title = mContext.getString(R.string.quick_settings_reset_confirmation_title,
-                mState.label);
-        mUsageTracker.showResetConfirmation(title, new Runnable() {
-            @Override
-            public void run() {
-                refreshState();
-            }
-        });
+        mHost.startSettingsActivity(WIRELESS_SETTINGS);
     }
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.visible = mController.isHotspotSupported() && mUsageTracker.isRecentlyUsed();
+        state.visible = mController.isHotspotSupported();
         state.label = mContext.getString(R.string.quick_settings_hotspot_label);
 
         state.value = mController.isHotspotEnabled();

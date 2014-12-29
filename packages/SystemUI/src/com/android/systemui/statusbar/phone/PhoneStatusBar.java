@@ -1057,7 +1057,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             final QSTileHost qsh = new QSTileHost(mContext, this,
                     mBluetoothController, mLocationController, mRotationLockController,
                     mNetworkController, mZenModeController, mHotspotController,
-                    mCastController, mUserSwitcherController, mKeyguardMonitor,
+                    mVolumeComponent, mCastController, mUserSwitcherController, mKeyguardMonitor,
                     mSecurityController);
             mQSPanel.setHost(qsh);
             mQSPanel.setTiles(qsh.getTiles());

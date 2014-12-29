@@ -36,6 +36,7 @@ public class AirplaneModeTile extends QSTile<QSTile.BooleanState> {
             new AnimationIcon(R.drawable.ic_signal_airplane_enable_animation);
     private final AnimationIcon mDisable =
             new AnimationIcon(R.drawable.ic_signal_airplane_disable_animation);
+
     private final GlobalSetting mSetting;
 
     private boolean mListening;
@@ -61,6 +62,12 @@ public class AirplaneModeTile extends QSTile<QSTile.BooleanState> {
         setEnabled(!mState.value);
         mEnable.setAllowAnimation(true);
         mDisable.setAllowAnimation(true);
+        qsCollapsePanel();
+    }
+
+    @Override
+    protected void handleSecondaryClick() {
+        mHost.startSettingsActivity(WIRELESS_SETTINGS);
     }
 
     @Override
