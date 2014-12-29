@@ -1132,8 +1132,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             } else {
                 qsh = new QSTileHost(mContext, this,
                     mBluetoothController, mLocationController, mRotationLockController,
-                    mNetworkController, mZenModeController, mVolumeComponent,
-                    mHotspotController, mCastController, mUserSwitcherController, 
+                    mNetworkController, mZenModeController, mHotspotController,
+                    mVolumeComponent, mCastController, mUserSwitcherController, 
                     mKeyguardMonitor,
                     mSecurityController);
             }
