@@ -3648,6 +3648,12 @@ public final class Settings {
          */
         public static final String VOLUME_PANEL_EXPANDED = "volume_panel_expanded";
 
+		/**
+         * Settings for clock font style
+         * @hide
+         */
+        public static final String STATUSBAR_CLOCK_FONT_STYLE = "statusbar_clock_font_style";
+
         /**
          * int value of the volume panel hide time in ms
          *
