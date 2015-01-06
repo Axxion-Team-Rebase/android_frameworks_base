@@ -3096,6 +3096,12 @@ public final class Settings {
          */
         public static final String NAVBAR_LEFT_IN_LANDSCAPE = "navigation_bar_left";
 
+		/**
+         * Settings for clock font style
+         * @hide
+         */
+        public static final String STATUSBAR_CLOCK_FONT_STYLE = "statusbar_clock_font_style";
+
         /**
          * Boolean value whether to expand the volume panel
          *
