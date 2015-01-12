@@ -3375,6 +3375,24 @@ public final class Settings {
          */
         public static final String RECENT_PANEL_BG_COLOR = "recent_panel_bg_color";
 
+         /**
+          * Action to perform when the key is pressed
+          * 0 - Nothing
+          * 1 - Menu
+          * 2 - App-switch
+          * 3 - Search
+          * 4 - Voice search
+          * 5 - In-app search
+          * 6 - home
+          * 7 - back
+          * 8 - toggle last app
+          * 9 - kill app
+          * 10 - go to sleep
+          * 11 - OmniSwitch recents
+          * @hide
+          */
+        public static final String HARDWARE_KEY_REBINDING = "hardware_key_rebinding";
+
         /**
          * Recent card background color
          *
@@ -3468,6 +3486,13 @@ public final class Settings {
          * @hide
          */
         public static final String POWER_PROFILE_PLUGGED = "power_profile_plugged";
+
+        /**
+         * Should the alarm icon be show in the statusbar
+         *
+         * @hide
+         */
+        public static final String STATUSBAR_SHOW_ALARM_ICON = "statusbar_show_alarm_icon";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
