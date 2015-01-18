@@ -48,7 +48,9 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.internal.util.cm.LockscreenShortcutsHelper;
 import com.android.internal.widget.LockPatternUtils;
+
 import com.android.keyguard.KeyguardStatusView;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSContainer;
@@ -1767,9 +1769,12 @@ public class NotificationPanelView extends PanelView implements
         mLaunchAnimationEndRunnable = null;
         if (start) {
             mKeyguardBottomArea.launchPhone();
-        } else {
+        } else if { (!mKeyguardBottomArea.isTargetCustom(
+                LockscreenShortcutsHelper.Shortcuts.RIGHT_SHORTCUT)){
+        } else { 
+            EventLogTags.writeSysuiLockscreenGesture(
+                    EventLogConstants.SYSUI_LOCKSCREEN_GESTURE_SWIPE_CAMERA, lengthDp, velocityDp);
             mSecureCameraLaunchManager.startSecureCameraLaunch();
-        }
         mStatusBar.startLaunchTransitionTimeout();
         mBlockTouches = true;
     }
@@ -1801,9 +1806,9 @@ public class NotificationPanelView extends PanelView implements
         });
         boolean start = getLayoutDirection() == LAYOUT_DIRECTION_RTL ? right : !right;
         if (start) {
-            mStatusBar.onPhoneHintStarted();
+            mStatusBar.onPhoneHintStarted(mKeyguardBottomArea.getLeftHint());
         } else {
-            mStatusBar.onCameraHintStarted();
+            mStatusBar.onCameraHintStarted(mKeyguardBottomArea.getRightHint());
         }
     }
 
