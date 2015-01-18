@@ -2863,6 +2863,34 @@ public final class Settings {
         public static final String STATUSBAR_SHOW_ALARM_ICON = "statusbar_show_alarm_icon";
 
         /**
+         * Should the alarm be shown in fullscreen instead of heads-up
+         *
+         * @hide
+         */
+        public static final String SHOW_ALARM_FULLSCREEN = "show_alarm_fullscreen";
+
+        /**
+         * Should the storage removed notification be shown
+         *
+         * @hide
+         */
+        public static final String STORAGE_MEDIA_REMOVED_NOTIFICTION = "storage_media_removed_notification";
+
+        /**
+         * Enable ongoing mount notifications for those storage volumes
+         *
+         * @hide
+         */
+        public static final String STORAGE_MOUNT_NOTIFICATION = "storage_mount_notification";
+
+        /**
+         * Boolean value whether to link ringtone and notification volume
+         *
+         * @hide
+         */
+        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
