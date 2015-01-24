@@ -42,7 +42,6 @@ public class QSConstants {
     public static final String TILE_VISUALIZER = "visualizer";
     public static final String TILE_SCREEN_TIMEOUT = "screen_timeout";
 
-
     // Order matters
     protected static final ArrayList<String> TILES_DEFAULT = new ArrayList<String>();
 
