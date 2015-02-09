@@ -86,6 +86,7 @@
     <string name="heads_up_enabled">Heads up notifications are enabled</string>
     <string name="heads_up_disabled">Heads up notifications are disabled</string>
     <string name="quick_settings_brightness">Brightness</string>
+    <string name="quick_settings_screen_off">Screen off</string>
     <string name="quick_settings_sync">Sync</string>
     <string name="quick_settings_sync_off">Sync off</string>
 
