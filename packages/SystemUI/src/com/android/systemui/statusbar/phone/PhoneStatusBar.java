@@ -37,6 +37,7 @@ import android.animation.TimeInterpolator;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
+import android.app.ActivityOptions;
 import android.app.IActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -46,6 +47,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
@@ -125,6 +128,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.util.omni.TaskUtils;
 import com.android.keyguard.KeyguardHostView.OnDismissAction;
 import com.android.keyguard.ViewMediatorCallback;
 import com.android.internal.util.slim.ActionConfig;
@@ -4462,6 +4466,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private boolean handleLongPressBackRecents(View v) {
         try {
             boolean sendBackLongPress = false;
+            boolean hijackRecentsLongPress = false;
             IActivityManager activityManager = ActivityManagerNative.getDefault();
             boolean isAccessiblityEnabled = mAccessibilityManager.isEnabled();
             if (activityManager.isInLockTaskMode() && !isAccessiblityEnabled) {
@@ -4476,15 +4481,16 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     // If we aren't pressing recents right now then they presses
                     // won't be together, so send the standard long-press action.
                     sendBackLongPress = true;
+                } else if ((v.getId() == R.id.recent_apps) && !activityManager.isInLockTaskMode()) {
+                    hijackRecentsLongPress = true;
                 }
             } else {
                 // If this is back still need to handle sending the long-press event.
                 long time = System.currentTimeMillis();
-                if (( time - mLastLockToAppLongPress) < LOCK_TO_APP_GESTURE_TOLERENCE) {
-                    if (v.getId() == mNavigationBarView.getLeftMenuButton().getId()
-                        || v.getId() == mNavigationBarView.getRightMenuButton().getId()) {
-                        sendBackLongPress = true;
-                    }
+                if (v.getId() == R.id.back) {
+                    sendBackLongPress = true;
+                } else if ((v.getId() == R.id.recent_apps) && !activityManager.isInLockTaskMode()) {
+                    hijackRecentsLongPress = true;
                 } else if (isAccessiblityEnabled && activityManager.isInLockTaskMode()) {
                     // When in accessibility mode a long press that is recents (not back)
                     // should stop lock task.
@@ -4492,6 +4498,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     mNavigationBarView.setOverrideMenuKeys(false);
                 }
                 mLastLockToAppLongPress = time;
+            }
+            if (sendBackLongPress) {
+                KeyButtonView keyButtonView = (KeyButtonView) v;
+                keyButtonView.sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.FLAG_LONG_PRESS);
+                keyButtonView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+            }
+            if (hijackRecentsLongPress) {
+                TaskUtils.toggleLastApp(mContext, mCurrentUserId);
             }
             return sendBackLongPress;
         } catch (RemoteException e) {
