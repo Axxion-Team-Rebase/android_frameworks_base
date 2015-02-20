@@ -1687,6 +1687,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mHasRemovableLid = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_hasRemovableLid);
 
+        boolean debugInputOverride = SystemProperties.getBoolean("debug.inputEvent", false);
+        DEBUG_INPUT = DEBUG_INPUT || debugInputOverride;
+
         updateKeyAssignments();
 
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
@@ -2979,13 +2982,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean canceled = event.isCanceled();
         final boolean longPress = (flags & KeyEvent.FLAG_LONG_PRESS) != 0;
         final boolean virtualKey = event.getDeviceId() == KeyCharacterMap.VIRTUAL_KEYBOARD;
+        final int scanCode = event.getScanCode();
 
         if (DEBUG_INPUT) {
             Log.d(TAG, "interceptKeyTi keyCode=" + keyCode + " down=" + down + " repeatCount="
                     + repeatCount + " keyguardOn=" + keyguardOn + " mHomePressed=" + mHomePressed
-                    + " canceled=" + canceled + " virtualKey=" + virtualKey
-                    + " longPress=" + longPress
-                    + " policyFlags=" + Integer.toHexString(policyFlags));
+                    + " canceled=" + canceled + " virtualKey=" + virtualKey + " scanCode=" + scanCode);
         }
 
         // If the boot mode is power off alarm, we should not dispatch the several physical key
