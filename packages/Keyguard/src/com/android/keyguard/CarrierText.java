@@ -18,6 +18,8 @@ package com.android.keyguard;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.text.method.SingleLineTransformationMethod;
 import android.text.TextUtils;
@@ -32,6 +34,7 @@ import android.widget.TextView;
 
 import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.IccCardConstants.State;
+import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.widget.LockPatternUtils;
 
 import java.util.Locale;
@@ -145,13 +148,41 @@ public class CarrierText extends LinearLayout {
             if(DEBUG) Log.d(TAG, "updateCarrierText, invalidate phoneId=" + phoneId);
             return;
         }
-
-        String airplaneMode = getResources().getString(
-                com.android.internal.R.string.lockscreen_airplane_mode_on);
-        CharSequence text = getCarrierTextForSimState(simState, plmn, spn);
-        TextView updateCarrierView = mOperatorName[phoneId];
-        if (mAirplaneModeText != null && mShowAPM) {
-            mAirplaneModeText.setText(airplaneMode);
+        if (allSimsMissing) {
+            if (N != 0) {
+                // Shows "No SIM card | Emergency calls only" on devices that are voice-capable.
+                // This depends on mPlmn containing the text "Emergency calls only" when the radio
+                // has some connectivity. Otherwise, it should be null or empty and just show
+                // "No SIM card"
+                // Grab the first subscripton, because they all should contain the emergency text,
+                // described above.
+                displayText =  makeCarrierStringOnEmergencyCapable(
+                        getContext().getText(R.string.keyguard_missing_sim_message_short),
+                        subs.get(0).getCarrierName());
+            } else {
+                // We don't have a SubscriptionInfo to get the emergency calls only from.
+                // Grab it from the old sticky broadcast if possible instead. We can use it
+                // here because no subscriptions are active, so we don't have
+                // to worry about MSIM clashing.
+                CharSequence text =
+                        getContext().getText(com.android.internal.R.string.emergency_calls_only);
+                Intent i = getContext().registerReceiver(null,
+                        new IntentFilter(TelephonyIntents.SPN_STRINGS_UPDATED_ACTION));
+                if (i != null) {
+                    String spn = "";
+                    String plmn = "";
+                    if (i.getBooleanExtra(TelephonyIntents.EXTRA_SHOW_SPN, false)) {
+                        spn = i.getStringExtra(TelephonyIntents.EXTRA_SPN);
+                    }
+                    if (i.getBooleanExtra(TelephonyIntents.EXTRA_SHOW_PLMN, false)) {
+                        plmn = i.getStringExtra(TelephonyIntents.EXTRA_PLMN);
+                    }
+                    if (DEBUG) Log.d(TAG, "Getting plmn/spn sticky brdcst " + plmn + "/" + spn);
+                    text = concatenate(plmn, spn);
+                }
+                displayText =  makeCarrierStringOnEmergencyCapable(
+                        getContext().getText(R.string.keyguard_missing_sim_message_short), text);
+            }
         }
         updateCarrierView.setText(text != null ? text.toString() : null);
     }
