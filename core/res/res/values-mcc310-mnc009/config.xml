@@ -30,4 +30,7 @@
          a permamnent error -->
     <bool name="config_protocol_errors_perm_failure">false</bool>
 
+    <string name="hide_lock_to_app_dialog">Always start</string>
+    <string name="silent_mode_priority">Priority</string>
+    <string name="silent_mode_none">None</string>
 </resources>
