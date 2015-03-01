@@ -3453,9 +3453,14 @@ public final class Settings {
         public static final String RECENT_PANEL_FAVORITES = "recent_panel_favorites";
 
         /**
+         * Display second in the Clock
+         * @hide
+         */
+        public static final String CLOCK_USE_SECOND = "clock_use_second";
+
+        /**
          * Recent panel expanded mode (auto = 0, always = 1, never = 2).
          * default = 0.
-         *
          * @hide
          */
         public static final String RECENT_PANEL_EXPANDED_MODE = "recent_panel_expanded_mode";
