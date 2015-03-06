@@ -5776,7 +5776,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         boolean isWakeKey = (policyFlags & WindowManagerPolicy.FLAG_WAKE) != 0
                 || event.isWakeKey()
                 || isVolumeWakeKey
-                || isHomeWakeKey;
+                || isHomeWakeKey
+                || isCustomWakeKey(keyCode);
 
         if (interactive || (isInjected && !isWakeKey)) {
             // When the device is interactive or the key is injected pass the
@@ -5810,7 +5811,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (isValidGlobalKey(keyCode)
                 && mGlobalKeyManager.shouldHandleGlobalKey(keyCode, event)) {
             if (isWakeKey) {
-                wakeUp(event.getEventTime(), mAllowTheaterModeWakeFromKey);
+                mWakeKeyTriggered = isCustomWakeKey(keyCode);
+                mPowerManager.wakeUp(event.getEventTime());
             }
             return result;
         }
@@ -6089,9 +6091,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         if (isWakeKey) {
-            wakeUp(event.getEventTime(), mAllowTheaterModeWakeFromKey);
+            mWakeKeyTriggered = isCustomWakeKey(keyCode);
+            mPowerManager.wakeUp(event.getEventTime());
         }
-
+        if (DEBUG_INPUT) {
+            Slog.d(TAG, "interceptKeyTq result=" + result);
+        }
         return result;
     }
 
@@ -6119,6 +6124,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      * is always considered a wake key.
      */
     private boolean isWakeKeyWhenScreenOff(int keyCode) {
+        if (isCustomWakeKey(keyCode)){
+            return true;
+        }
         switch (keyCode) {
             // ignore volume keys unless docked
             case KeyEvent.KEYCODE_VOLUME_UP:
@@ -7821,20 +7829,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 		return false;
 	}
 	
-    private boolean isOffscreenWakeKey(int keyCode) {
+    private boolean isCustomWakeKey(int keyCode) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 if (DEBUG_WAKEUP) Log.i(TAG, "isOffscreenWakeKey: mVolumeWakeSupport " + mVolumeWakeSupport);
-                if (mVolumeWakeSupport) {
-                    mWakeKeyTriggered = true;
-                }
                 return mVolumeWakeSupport;
             case KeyEvent.KEYCODE_HOME:
                 if (DEBUG_WAKEUP) Log.i(TAG, "isOffscreenWakeKey: mHomeWakeSupport " + mHomeWakeSupport);
-                if (mHomeWakeSupport) {
-                    mWakeKeyTriggered = true;
-                }
                 return mHomeWakeSupport;
         }
 
