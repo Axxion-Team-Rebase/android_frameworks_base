@@ -675,6 +675,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private int mCurrentUserId;
 
+    private boolean mOffscreenGestureSupport;
+    private boolean mVolumeWakeSupport;
+    private boolean mHomeWakeSupport;
+    private boolean mPersistHomeWakeSupport;
+
     // Maps global key codes to the components that will handle them.
     private GlobalKeyManager mGlobalKeyManager;
 
@@ -1658,6 +1663,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mTranslucentDecorEnabled = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_enableTranslucentDecor);
 
+        mDeviceHardwareKeys = mContext.getResources().getInteger(
+                com.android.internal.R.integer.config_deviceHardwareKeys);
+        mHasRemovableLid = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_hasRemovableLid);
+        mBackKillTimeout = mContext.getResources().getInteger(
+                com.android.internal.R.integer.config_backKillTimeout);
+        mPersistHomeWakeSupport = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_persistHomeWakeSupport);
+
         mAllowTheaterModeWakeFromKey = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_allowTheaterModeWakeFromKey);
         mAllowTheaterModeWakeFromPowerKey = mAllowTheaterModeWakeFromKey
@@ -2139,6 +2153,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mImmersiveModeConfirmation.loadSetting(mCurrentUserId);
             }
             PolicyControl.reloadFromSetting(mContext);
+
+            mVolumeWakeSupport = Settings.System.getIntForUser(resolver,
+                    Settings.System.VOLUME_BUTTON_WAKE,
+                    0,
+                    UserHandle.USER_CURRENT) != 0;
+
+            mHomeWakeSupport = Settings.System.getIntForUser(resolver,
+                    Settings.System.HOME_BUTTON_WAKE,
+                    (mPersistHomeWakeSupport ? 1 : 0),
+                    UserHandle.USER_CURRENT) != 0;
         }
         if (updateRotation) {
             updateRotation(true);
