@@ -3481,6 +3481,13 @@ public final class Settings {
         public static final String RECENT_PANEL_BG_COLOR = "recent_panel_bg_color";
 
         /**
+         * Screenshod sound enable, This is the noise made when taeking a screesnhot
+         * Defaults to 1 - sounds enabled
+         * @hide
+         */
+        public static final String SCREENSHOT_SHUTTER_SOUND = "screenshot_shutter_sound";
+
+        /**
          * Change volume up and down handlign based on rotation
          * @hide
          */
