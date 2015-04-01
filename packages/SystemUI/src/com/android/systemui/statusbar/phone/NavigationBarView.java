@@ -816,6 +816,7 @@ public class NavigationBarView extends LinearLayout {
             // add the custom buttons
             for (int j = 0; j < length; j++) {
                 KeyButtonView button = new KeyButtonView(mContext, null);
+                button.setDeviceOrientation(landscape, mTablet);                
                 button.setButtonActions(buttonsArray.get(j));
                 button.setLongPressTimeout(mLongPressTimeout);
                 button.setLayoutParams(getLayoutParams(landscape, mButtonWidth, mTablet ? 1f : 0.5f));
