@@ -14,17 +14,20 @@
   ~ limitations under the License
   -->
 
-<!-- Extends FrameLayout -->
-<com.android.systemui.statusbar.SpeedBumpView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/speed_bump_height"
-    android:visibility="gone"
-    >
-    <com.android.systemui.statusbar.AlphaOptimizedView
-        android:id="@+id/speedbump_line"
+<!-- Extends Framelayout -->
+<com.android.systemui.statusbar.EmptyShadeView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/speedbump_line_bg"
-        android:layout_gravity="center_vertical"/>
-</com.android.systemui.statusbar.SpeedBumpView>
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        >
+    <TextView
+            android:id="@+id/no_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:paddingTop="12dp"
+            android:gravity="top|center_horizontal"
+            android:textColor="@color/no_notifications_text"
+            android:textSize="20sp"
+            android:text="@string/empty_shade_text"/>
+</com.android.systemui.statusbar.EmptyShadeView>
