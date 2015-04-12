@@ -1259,6 +1259,11 @@ public final class Settings {
 
             // At one time in System, then Global, but now back in Secure
             MOVED_TO_SECURE.add(Secure.INSTALL_NON_MARKET_APPS);
+
+            /* CUSTOM CHANGES */
+            for (String s : Secure.NAVIGATION_RING_TARGETS) {
+                MOVED_TO_SECURE.add(s);
+            }
         }
 
         private static final HashSet<String> MOVED_TO_GLOBAL;
@@ -6121,6 +6126,22 @@ public final class Settings {
          * @hide
          */
         public static final String ADB_PORT = "adb_port";
+
+        /**
+         * Custom navring actions
+         * @hide
+         */
+        public static final String[] NAVIGATION_RING_TARGETS = new String[] {
+                "navigation_ring_targets_0",
+                "navigation_ring_targets_1",
+                "navigation_ring_targets_2",
+        };
+
+        /**
+         * Whether search panel is enabled.
+         * @hide
+         */
+        public static final String SEARCH_PANEL_ENABLED = "search_panel_enabled";
 
         /**
          * This are the settings to be backed up.
