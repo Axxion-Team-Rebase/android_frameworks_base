@@ -19,6 +19,7 @@ package android.widget;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.PowerManager;
 import android.util.FloatMath;
 import android.view.ViewConfiguration;
 import android.view.animation.AnimationUtils;
@@ -122,7 +123,6 @@ public class Scroller  {
     private int lBoostPcDisblBoost = 0;
     private int lBoostKsmBoost = 0;
 
-
     // A context-specific coefficient adjusted to physical values.
     private float mPhysicalCoeff;
 
@@ -213,7 +213,6 @@ public class Scroller  {
         if (mPerf == null && bIsPerfBoostEnabled) {
             mPerf = new Performance();
         }
-
     }
 
     /**

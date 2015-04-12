@@ -18,6 +18,7 @@ package android.widget;
 
 import android.content.Context;
 import android.hardware.SensorManager;
+import android.os.PowerManager;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.ViewConfiguration;
