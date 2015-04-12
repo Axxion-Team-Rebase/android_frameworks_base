@@ -1645,6 +1645,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             goingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
         }
 
+        // power menu register broadcast receiver for power menu intent
+        mPowerMenuReceiver = new PowerMenuReceiver(context);
+        mPowerMenuReceiver.registerSelf();
+
         String deviceKeyHandlerLib = mContext.getResources().getString(
                 com.android.internal.R.string.config_deviceKeyHandlerLib);
 
@@ -7299,6 +7303,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+<<<<<<< HEAD
     private boolean isCustomWakeKey(int keyCode) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
@@ -7325,5 +7330,38 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } catch (RemoteException e) {
         }
         return false;
+    }
+
+    private PowerMenuReceiver mPowerMenuReceiver;
+   
+    class PowerMenuReceiver extends BroadcastReceiver {
+        private boolean mIsRegistered = false;
+
+        public PowerMenuReceiver(Context context) {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(Intent.ACTION_POWER_MENU)) {
+                showGlobalActionsInternal();
+            }
+        }
+
+        private void registerSelf() {
+            if (!mIsRegistered) {
+                mIsRegistered = true;
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(Intent.ACTION_POWER_MENU);
+                mContext.registerReceiver(mPowerMenuReceiver, filter);
+            }
+        }
+
+        private void unregisterSelf() {
+            if (mIsRegistered) {
+                mIsRegistered = false;
+                mContext.unregisterReceiver(this);
+            }
+        }
     }
 }
