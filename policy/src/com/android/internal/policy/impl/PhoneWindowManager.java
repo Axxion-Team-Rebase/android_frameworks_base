@@ -650,11 +650,43 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     /* The number of steps between min and max brightness */
     private static final int BRIGHTNESS_STEPS = 10;
 
-    SettingsObserver mSettingsObserver;
+    private SettingsObserver mSettingsObserver;
+    private CustomActionReceiver mCustomActionReceiver;
+
     ShortcutManager mShortcutManager;
     PowerManager.WakeLock mBroadcastWakeLock;
     PowerManager.WakeLock mPowerKeyWakeLock;
     boolean mHavePendingMediaKeyRepeatWithWakeLock;
+
+    // Navbar action receiver
+    private final class CustomActionReceiver extends BroadcastReceiver {
+        private boolean mIsRegistered = false;
+
+        public CustomActionReceiver(Context context) {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(Intent.ACTION_SCREENSHOT)) {
+                mHandler.removeCallbacks(mScreenshotRunnable);
+                mHandler.post(mScreenshotRunnable);
+            } else if (action.equals(Intent.ACTION_SCREENRECORD)) {
+                mHandler.removeCallbacks(mScreenrecordRunnable);
+                mHandler.post(mScreenrecordRunnable);        
+        }
+
+        protected void register() {
+            if (!mIsRegistered) {
+                mIsRegistered = true;
+
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(Intent.ACTION_SCREENSHOT);
+                filter.addAction(Intent.ACTION_SCREENRECORD);                
+                mContext.registerReceiver(mCustomActionReceiver, filter);
+            }
+        }
+    }
 
     private int mCurrentUserId;
 
@@ -1590,7 +1622,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         boolean debugInputOverride = SystemProperties.getBoolean("debug.inputEvent", false);
         DEBUG_INPUT = DEBUG_INPUT || debugInputOverride;
 
-        updateKeyAssignments();
+        mCustomActionReceiver = new CustomActionReceiver(context);
+        mCustomActionReceiver.register();
 
         mAllowTheaterModeWakeFromKey = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_allowTheaterModeWakeFromKey);
@@ -5271,6 +5304,20 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
 
+    private final Runnable mScreenshotRunnable = new Runnable() {
+        @Override
+        public void run() {
+            takeScreenshot();
+        }
+    };
+
+    private final Runnable mScreenrecordRunnable = new Runnable() {
+        @Override
+        public void run() {
+            takeScreenrecord();
+        }
+    };
+    
     // Assume this is called from the Handler thread.
     private void takeScreenshot() {
         synchronized (mScreenshotLock) {
@@ -6052,6 +6099,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         synchronized (mLock) {
             if (!mScreenOnEarly || mWindowManagerDrawComplete) {
                 return; // spurious
+            }
+            synchronized(mLock) {
+                    mLastSystemUiFlags = 0;
+                    updateSystemUiVisibilityLw();
             }
 
             mWindowManagerDrawComplete = true;
