@@ -46,10 +46,7 @@ import android.app.StatusBarManager;
 import android.app.WallpaperManager;
 import android.content.ComponentCallbacks2;
 import android.content.BroadcastReceiver;
-<<<<<<< HEAD
-=======
 import android.content.ComponentCallbacks2;
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -337,10 +334,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     View mFlipSettingsView;
     private QSPanel mQSPanel;
     private DevForceNavbarObserver mDevForceNavbarObserver;
-<<<<<<< HEAD
-=======
     boolean mSearchPanelAllowed = true;
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
 
     // task manager
     private TaskManager mTaskManager;
@@ -416,8 +410,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     private HandlerThread mHandlerThread;
 
-<<<<<<< HEAD
-=======
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -472,7 +464,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
 
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
     class DevForceNavbarObserver extends ContentObserver {
         DevForceNavbarObserver(Handler handler) {
             super(handler);
@@ -481,21 +472,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
-<<<<<<< HEAD
-                    Settings.System.DEV_FORCE_SHOW_NAVBAR), false, this);
-=======
                     Settings.System.NAVBAR_FORCE_ENABLE), false, this);
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
         }
 
         @Override
         public void onChange(boolean selfChange) {
             boolean visible = Settings.System.getIntForUser(mContext.getContentResolver(),
-<<<<<<< HEAD
-                    Settings.System.DEV_FORCE_SHOW_NAVBAR, 0, UserHandle.USER_CURRENT) == 1;
-=======
                     Settings.System.NAVBAR_FORCE_ENABLE, 0, UserHandle.USER_CURRENT) == 1;
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
             if (visible) {
                 forceAddNavigationBar();
             } else {
@@ -752,13 +735,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         // in session state
 
         addNavigationBar();
-
-<<<<<<< HEAD
-=======
+        
+        // Status bar settings observer
         SettingsObserver observer = new SettingsObserver(mHandler);
         observer.observe();
 
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
+        mSettingsObserver.onChange(false); // set up
+        
         // Developer options - Force Navigation bar
         try {
             boolean needsNav = mWindowManagerService.needsNavigationBar();
@@ -3756,15 +3739,12 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
 
-<<<<<<< HEAD
-=======
     @Override
     public void notifyLayoutChange(int direction) {
         mNavigationBarView.notifyLayoutChange(direction);
         mHandler.postDelayed(new Runnable() { public void run() { forceNavigationIconHints(); }}, 20);
     }
 
->>>>>>> 6b11a0f... [1/2] Navigation Bar Customization
     protected void loadDimens() {
         final Resources res = mContext.getResources();
 
