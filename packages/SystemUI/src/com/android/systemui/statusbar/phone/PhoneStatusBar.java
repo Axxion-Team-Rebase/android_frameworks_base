@@ -727,9 +727,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         addNavigationBar();
 
-        SettingsObserver observer = new SettingsObserver(mHandler);
-        observer.observe();
-
         // Status bar settings observer
         SettingsObserver observer = new SettingsObserver(mHandler);
         observer.observe();

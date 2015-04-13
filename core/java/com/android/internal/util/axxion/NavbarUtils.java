@@ -99,8 +99,8 @@ public class NavbarUtils {
 				case ACTION_VOICEASSIST:
 					return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_voiceassist_land");
 				case ACTION_POWER:
-				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_power_land")
-        			case ACTION_TORCH:
+				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_power_land");
+        		case ACTION_TORCH:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_torch_land");
 				case ACTION_LAST_APP:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_lastapp_land");
@@ -108,12 +108,8 @@ public class NavbarUtils {
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_notifications_land");
 				case ACTION_IME:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_ime_switcher_land");
-				case ACTION_GESTURE_ACTIONS:
-				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_gesture_land");
 				case ACTION_SCREENSHOT:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_screenshot_land");
-				case ACTION_SLEEP:
-				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_power_land");
 				case ACTION_RING_VIB:
 				case ACTION_RING_SILENT:
 				case ACTION_RING_VIB_SILENT:
