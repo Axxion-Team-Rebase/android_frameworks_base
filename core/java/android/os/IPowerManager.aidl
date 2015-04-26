@@ -63,5 +63,9 @@ interface IPowerManager
     void updateBlockedUids(int uid, boolean isBlocked);
     
     String getCurrentPowerProfile();
-    void setPowerProfile(String profile);  
+    void setPowerProfile(String profile);
+
+    // temporarily overrides the button brightness settings to allow the user to
+    // see the effect of a settings change without applying it immediately
+    void setTemporaryButtonBrightnessSettingOverride(int brightness);
 }
