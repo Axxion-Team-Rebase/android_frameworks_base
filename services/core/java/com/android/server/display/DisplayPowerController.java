@@ -678,6 +678,8 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
             mAppliedLowPower = true;
         }
 
+        mCallbacks.onBrightnessChanged(brightness);
+
         // Animate the screen brightness when the screen is on or dozing.
         // Skip the animation when the screen is off or suspended.
         if (!mPendingScreenOff) {
