@@ -1475,6 +1475,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
 
+<<<<<<< HEAD
     private final Runnable mScreenshotRunnable = new Runnable() {
         @Override
         public void run() {
@@ -1503,6 +1504,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
 
+=======
+>>>>>>> a3967e5... FrameworksBase: Fix build
     @Override
     public void showGlobalActions() {
         mHandler.removeMessages(MSG_DISPATCH_SHOW_GLOBAL_ACTIONS);
@@ -6056,7 +6059,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 break;
                             }
                         }
-                        if (!isScreenOn() && !mVolumeRockerWake) {
+                        if (!isScreenOn() && !mVolumeWakeSupport) {
                             // If we aren't passing to the user and no one else
                             // handled it send it to the session manager to figure
                             // out.
