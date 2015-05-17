@@ -1769,12 +1769,13 @@ public class NotificationPanelView extends PanelView implements
         mLaunchAnimationEndRunnable = null;
         if (start) {
             mKeyguardBottomArea.launchPhone();
-        } else if { (!mKeyguardBottomArea.isTargetCustom(
-                LockscreenShortcutsHelper.Shortcuts.RIGHT_SHORTCUT)){
-        } else { 
+        } else if (!mKeyguardBottomArea.isTargetCustom(
+                LockscreenShortcutsHelper.Shortcuts.RIGHT_SHORTCUT)) {
+        } else {
             EventLogTags.writeSysuiLockscreenGesture(
                     EventLogConstants.SYSUI_LOCKSCREEN_GESTURE_SWIPE_CAMERA, lengthDp, velocityDp);
             mSecureCameraLaunchManager.startSecureCameraLaunch();
+        }
         mStatusBar.startLaunchTransitionTimeout();
         mBlockTouches = true;
     }
