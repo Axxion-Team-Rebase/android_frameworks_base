@@ -2165,21 +2165,41 @@ public abstract class BaseStatusBar extends SystemUI implements
         boolean isOngoing = sbn.isOngoing(); // not used yet
         boolean isClearable = sbn.isClearable(); // not used yet
 
-        boolean interrupt = (isFullscreen || (isHighPriority && (isNoisy || hasTicker))
-                || asHeadsUp == Notification.HEADS_UP_REQUESTED)
+        boolean isExpanded = false;
+            if (mStackScroller != null) {
+                isExpanded = mStackScroller.getIsExpanded();
+        }
+
+        final InputMethodManager inputMethodManager = (InputMethodManager)
+                mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        boolean isIMEShowing = inputMethodManager.isImeShowing();
+
+        boolean interrupt = (isFullscreen || (isHighPriority && (isNoisy || hasTicker)))
                 && isAllowed
                 && !accessibilityForcesLaunch
                 && mPowerManager.isScreenOn()
+                && !isExpanded
+                && !isIMEShowing
                 && (!mStatusBarKeyguardViewManager.isShowing()
                         || mStatusBarKeyguardViewManager.isOccluded())
-                && !mStatusBarKeyguardViewManager.isInputRestricted()
-                && !zenBlocksHeadsUp
-                && !isImeShowing();
+                && !mStatusBarKeyguardViewManager.isInputRestricted();
         try {
             interrupt = interrupt && !mDreamManager.isDreaming();
         } catch (RemoteException e) {
             Log.d(TAG, "failed to query dream manager", e);
         }
+        
+        // its below our threshold priority, we might want to always display
+        // notifications from certain apps
+        if (!isHighPriority && !isOngoing && !isExpanded && !isIMEShowing) {
+            // However, we don't want to interrupt if we're in an application that is
+            // in Do Not Disturb
+            if (!isPackageInDnd(getTopLevelPackage())) {
+                return true;
+            }
+        }
+
         if (DEBUG) Log.d(TAG, "interrupt: " + interrupt);
         return interrupt;
     }
