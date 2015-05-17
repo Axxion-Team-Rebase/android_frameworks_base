@@ -691,8 +691,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             } else if (action.equals(Intent.ACTION_SCREENRECORD)) {
                 mHandler.removeCallbacks(mScreenrecordRunnable);
                 mHandler.post(mScreenrecordRunnable);        
-        }
-
+			}
+		}
+		
         protected void register() {
             if (!mIsRegistered) {
                 mIsRegistered = true;
@@ -1407,20 +1408,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 performAuditoryFeedbackForAccessibilityIfNeed();
             }
             showGlobalActionsInternal();
-        }
-    };
-
-    private final Runnable mScreenshotRunnable = new Runnable() {
-        @Override
-        public void run() {
-            takeScreenshot();
-        }
-    };
-
-    private final Runnable mScreenrecordRunnable = new Runnable() {
-        @Override
-        public void run() {
-            takeScreenrecord();
         }
     };
 
@@ -5554,7 +5541,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 break;
                             }
                         }
-                        if (!isScreenOn()) {
+                        if (!isScreenOn() && !mVolumeWakeSupport) {
                             // If we aren't passing to the user and no one else
                             // handled it send it to the session manager to figure
                             // out.
