@@ -16,6 +16,8 @@
 
 package com.android.systemui.statusbar.phone;
 
+import static com.android.internal.util.axxion.NavbarConstants.*;
+
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
@@ -58,7 +60,7 @@ import android.widget.Space;
 
 import com.android.internal.util.axxion.KeyButtonInfo;
 import com.android.internal.util.axxion.NavbarConstants;
-import static com.android.internal.util.axxion.NavbarConstants.*;
+import com.android.internal.util.axxion.NavbarUtils;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
@@ -73,8 +75,8 @@ import java.util.ArrayList;
 import android.util.SparseArray;
 
 public class NavigationBarView extends LinearLayout {
-    final static boolean DEBUG = false;
-    final static String TAG = "PhoneStatusBar/NavigationBarView";
+    private static final boolean DEBUG = NavbarUtils.DEBUG;
+    private final static String TAG = "PhoneStatusBar/NavigationBarView";
 
     private static final int CHANGER_LEFT_SIDE = 0;
     private static final int CHANGER_RIGHT_SIDE = 1;

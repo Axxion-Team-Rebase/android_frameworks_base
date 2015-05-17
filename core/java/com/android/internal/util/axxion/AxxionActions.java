@@ -16,6 +16,8 @@
 
 package com.android.internal.util.axxion;
 
+import static com.android.internal.util.axxion.NavbarConstants.*;
+
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -48,16 +50,16 @@ import android.widget.Toast;
 import com.android.internal.R;
 import com.android.internal.statusbar.IStatusBarService;
 
-import static com.android.internal.util.axxion.NavbarConstants.*;
+import com.android.internal.util.omni.TaskUtils;
+import com.android.internal.util.axxion.NavbarUtils;
 
 import java.net.URISyntaxException;
 import java.util.List;
 
-import com.android.internal.util.omni.TaskUtils;
-
 public class AxxionActions {
 
-    public static final String TAG = "AxxionActions";
+    private static final String TAG = "AxxionActions";
+    private static final boolean DEBUG = NavbarUtils.DEBUG;
 
     private static final int LAYOUT_LEFT = -1;
     private static final int LAYOUT_RIGHT = 1;
@@ -77,6 +79,8 @@ public class AxxionActions {
     }
 
     public static boolean launchAction(final Context mContext, final String action) {
+        if (DEBUG) Log.e(TAG, "ACTION: " + action);		
+
         switch (action) {
             case ACTION_HOME:
                 IWindowManager mWindowManagerService = WindowManagerGlobal.getWindowManagerService();
@@ -85,7 +89,7 @@ public class AxxionActions {
                 } catch (RemoteException e) {
                     Log.e(TAG, "HOME ACTION FAILED");
                 }
-                break;
+                return true;
 
             case ACTION_RECENTS:
                 try {
@@ -95,19 +99,19 @@ public class AxxionActions {
                 } catch (RemoteException e) {
                     Log.e(TAG, "RECENTS ACTION FAILED");
                 }
-                break;
+                return true;
 
             case ACTION_BACK:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_BACK, STANDARD_FLAGS);
-                break;
+                return true;
 
             case ACTION_MENU:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_MENU, STANDARD_FLAGS);
-                break;
+                return true;
 
             case ACTION_SEARCH:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_SEARCH, STANDARD_FLAGS);
-                break;
+                return true;
 
             case ACTION_KILL:
                 mHandler.post(new Runnable() {
@@ -118,34 +122,34 @@ public class AxxionActions {
                         }
                     }
                 });
-                break;
+                return true;
 
             case ACTION_ASSIST:
                 Intent intent = new Intent(Intent.ACTION_ASSIST);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (isIntentAvailable(mContext, intent))
                     mContext.startActivity(intent);
-                break;
+                return true;
 
             case ACTION_VOICEASSIST:
                 Intent intentVoice = new Intent(RecognizerIntent.ACTION_WEB_SEARCH);
                 intentVoice.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(intentVoice);
-                break;
+                return true;
 
             case ACTION_POWER:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_POWER, STANDARD_FLAGS);
-                break;
+                return true;
 
             case ACTION_TORCH:
                 TorchManager torchManager = (TorchManager) 
 			    mContext.getSystemService(Context.TORCH_SERVICE);
                 torchManager.toggleTorch();
-                break;
+                return true;
 
             case ACTION_LAST_APP:
                 TaskUtils.toggleLastApp(mContext, mCurrentUserId);
-                break;
+                return true;
 
             case ACTION_NOTIFICATIONS:
                 try {
@@ -154,23 +158,7 @@ public class AxxionActions {
                 } catch (RemoteException e) {
                     Log.e(TAG, "NOTIFICATION ACTION FAILED");
                 }
-                break;
-
-            case ACTION_APP:
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Intent intentapp = Intent.parseUri(action, 0);
-                            intentapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            mContext.startActivity(intentapp);
-                        } catch (URISyntaxException e) {
-                            Log.e(TAG, "URISyntaxException: [" + action + "]");
-                        } catch (ActivityNotFoundException e) {
-                            Log.e(TAG, "ActivityNotFound: [" + action + "]");
-                        }
-                }});
-                break;
+                return true;
 
             case ACTION_IME_LAYOUT:
                 try {
@@ -178,23 +166,23 @@ public class AxxionActions {
                             ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).notifyLayoutChange(LAYOUT_IME);
                 } catch (RemoteException e) {
                 }
-                break;
+                return true;
 
             case ACTION_ARROW_LEFT:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_DPAD_LEFT, CURSOR_FLAGS);
-                break;
+                return true;
 
             case ACTION_ARROW_RIGHT:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_DPAD_RIGHT, CURSOR_FLAGS);
-                break;
+                return true;
 
             case ACTION_ARROW_UP:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_DPAD_UP, CURSOR_FLAGS);
-                break;
+                return true;
 
             case ACTION_ARROW_DOWN:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_DPAD_DOWN, CURSOR_FLAGS);
-                break;
+                return true;
 
             case ACTION_RING_VIB:
                 final AudioManager rv = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
@@ -216,7 +204,7 @@ public class AxxionActions {
                         }
                     }
                 }
-                break;
+                return true;
 
             case ACTION_LAYOUT_LEFT:
                 try {
@@ -224,7 +212,7 @@ public class AxxionActions {
                             ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).notifyLayoutChange(LAYOUT_LEFT);
                 } catch (RemoteException e) {
                 }
-                break;
+                return true;
 
             case ACTION_LAYOUT_RIGHT:
                 try {
@@ -232,12 +220,12 @@ public class AxxionActions {
                             ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).notifyLayoutChange(LAYOUT_RIGHT);
                 } catch (RemoteException e) {
                 }
-                break;
+                return true;
 
             case ACTION_IME:
                 mContext.sendBroadcast(new Intent(
                         "android.settings.SHOW_INPUT_METHOD_PICKER"));
-                break;
+                return true;
 
             case ACTION_RING_SILENT:
                 final AudioManager rs = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
@@ -254,7 +242,7 @@ public class AxxionActions {
                         }
                     }
                 }
-                break;
+                return true;
 
             case ACTION_RING_VIB_SILENT:
                 final AudioManager rvs = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
@@ -278,19 +266,35 @@ public class AxxionActions {
                         }
                     }
                 }
-                break;
+                return true;
  
             case ACTION_SCREENSHOT:
                 mContext.sendBroadcast(new Intent(Intent.ACTION_SCREENSHOT));
-				break;
+				return true;
 
             case ACTION_SCREENRECORD:
                 mContext.sendBroadcast(new Intent(Intent.ACTION_SCREENRECORD));
-				break;
+				return true;
 				
             case ACTION_NULL:
             case ACTION_BLANK:
-                break;
+                return true;
+        }
+
+        if (NavbarConstants.fromString(action) == NavbarConstant.ACTION_APP) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Intent intentapp = Intent.parseUri(action, 0);
+                        intentapp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intentapp);
+                    } catch (URISyntaxException e) {
+                        Log.e(TAG, "URISyntaxException: [" + action + "]");
+                    } catch (ActivityNotFoundException e) {
+                        Log.e(TAG, "ActivityNotFound: [" + action + "]");
+                    }
+            }});
         }
         return true;
     }
