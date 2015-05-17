@@ -16,12 +16,12 @@
 
 package com.android.internal.util.axxion;
 
-import android.text.TextUtils;
-
 import static com.android.internal.util.axxion.NavbarConstants.*;
 
+import android.text.TextUtils;
+
 public class KeyButtonInfo {
-    public static final String TAG = "keybuttoninfo";
+    private static final String TAG = "keybuttoninfo";
 
     public String singleAction, doubleTapAction, longPressAction, iconUri;
 
