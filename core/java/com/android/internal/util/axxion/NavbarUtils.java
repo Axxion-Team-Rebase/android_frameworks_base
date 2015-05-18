@@ -111,8 +111,11 @@ public class NavbarUtils {
 				case ACTION_SCREENSHOT:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_screenshot_land");
 				case ACTION_RING_VIB:
+				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_ring_vib_land");
 				case ACTION_RING_SILENT:
+				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_ring_silent_land");				
 				case ACTION_RING_VIB_SILENT:
+				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_ring_vib_silent_land");				
 				case ACTION_IME_LAYOUT:
 				case ACTION_ARROW_LEFT:
 				case ACTION_ARROW_RIGHT:
@@ -126,7 +129,7 @@ public class NavbarUtils {
 			}
         } else {  // This must be an app 
             try {
-                actionIcon = context.getPackageManager().getActivityIcon(Intent.parseUri(uri, 0));
+                return mContext.getPackageManager().getActivityIcon(Intent.parseUri(uri, 0));
             } catch (NameNotFoundException e) {
             } catch (URISyntaxException e) {
             }

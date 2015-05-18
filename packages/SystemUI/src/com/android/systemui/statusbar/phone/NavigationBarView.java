@@ -822,7 +822,8 @@ public class NavigationBarView extends LinearLayout {
                 button.setButtonActions(buttonsArray.get(j));
                 button.setLongPressTimeout(mLongPressTimeout);
                 button.setLayoutParams(getLayoutParams(landscape, mButtonWidth, mTablet ? 1f : 0.5f));
-
+				button.setScaleType(KeyButtonView.ScaleType.CENTER_INSIDE);
+                
                 if (!button.mHasBlankSingleAction) {
                     addButton(navButtons, button, landscape);
                     addLightsOutButton(lightsOut, button, landscape, false);
