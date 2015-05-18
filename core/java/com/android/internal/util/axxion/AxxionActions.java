@@ -276,6 +276,10 @@ public class AxxionActions {
                 mContext.sendBroadcast(new Intent(Intent.ACTION_SCREENRECORD));
 				return true;
 				
+            case ACTION_POWERMENU:
+                mContext.sendBroadcast(new Intent(Intent.ACTION_POWER_MENU));
+				return true;
+								
             case ACTION_NULL:
             case ACTION_BLANK:
                 return true;
