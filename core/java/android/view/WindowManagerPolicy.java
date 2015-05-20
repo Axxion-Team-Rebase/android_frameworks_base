@@ -1189,20 +1189,9 @@ public interface WindowManagerPolicy {
     public int adjustSystemUiVisibilityLw(int visibility);
 
     /**
-     * sends ACTION_HOME from AwesomeAction
-     * @hide
-     */
-    public void sendHomeAction();
-
-    /**
      * Specifies whether there is an on-screen navigation bar separate from the status bar.
      */
     public boolean hasNavigationBar();
-
-    /**
-     * Specifies whether the device needs a navigation bar (because it has no hardware buttons)
-     */
-    public boolean needsNavigationBar();
 
     /**
      * Lock the device now.
