@@ -60,15 +60,13 @@ public class KeyButtonView extends ImageView {
     private AudioManager mAudioManager;
     private Animator mAnimateToQuiescent = new ObjectAnimator();
     private KeyButtonRipple mRipple;
-    private boolean mPerformedLongClick;
-    
+
     private final Runnable mCheckLongPress = new Runnable() {
         public void run() {
             if (isPressed()) {
                 // Log.d("KeyButtonView", "longpressed: " + this);
                 if (isLongClickable()) {
                     // Just an old-fashioned ImageView
-                    mPerformedLongClick = true;
                     performLongClick();
                 } else {
                     sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.FLAG_LONG_PRESS);
@@ -223,14 +221,13 @@ public class KeyButtonView extends ImageView {
                     }
                 } else {
                     // no key code, just a regular ImageView
-                    if (doIt && !mPerformedLongClick) {
+                    if (doIt) {
                         performClick();
                     }
                 }
                 if (mSupportsLongpress) {
                     removeCallbacks(mCheckLongPress);
                 }
-                mPerformedLongClick = false;
                 break;
         }
 

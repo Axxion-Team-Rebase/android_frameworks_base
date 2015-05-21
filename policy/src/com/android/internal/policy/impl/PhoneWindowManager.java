@@ -1503,7 +1503,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mBackKillPending = true;
                 break;
             case KEY_ACTION_LAST_APP:
-                TaskUtils.toggleLastApp(mContext, mCurrentUserId);
+                TaskUtils.toggleLastApp(mContext);
                 break;
             case KEY_ACTION_SLEEP:
                 mPowerManager.goToSleep(SystemClock.uptimeMillis());
@@ -3655,7 +3655,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     Runnable mKillTask = new Runnable() {
         public void run() {
             mBackKillPending = false;
-            if (TaskUtils.killActiveTask(mContext, mCurrentUserId)){
+            if (TaskUtils.killActiveTask(mContext)){
                 performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
                 Toast.makeText(mContext,
                         com.android.internal.R.string.app_killed_message, Toast.LENGTH_SHORT).show();
