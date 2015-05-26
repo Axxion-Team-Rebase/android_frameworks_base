@@ -269,7 +269,11 @@ status_t BootAnimation::initTexture(void* buffer, size_t len)
     if (codec) {
         codec->setDitherImage(false);
         codec->decode(&stream, &bitmap,
+                #ifdef USE_565
+                kRGB_565_SkColorType,
+                #else
                 kN32_SkColorType,
+                #endif
                 SkImageDecoder::kDecodePixels_Mode);
         delete codec;
     }
@@ -700,6 +704,17 @@ bool BootAnimation::movie()
     for (size_t i=0 ; i<pcount ; i++) {
         const Animation::Part& part(animation.parts[i]);
         const size_t fcount = part.frames.size();
+
+#ifdef BOARD_USES_TEXTURE_CACHE
+#ifdef NO_TEXTURE_CACHE
+        const int useTextureCache = 0;
+#else
+        const int useTextureCache = (
+            (animation.width * animation.height * fcount) >
+            48 * 1024 * 1024) ? 1 : 0;
+#endif
+#endif
+
         glBindTexture(GL_TEXTURE_2D, 0);
 
         /*calculate if we need to runtime save memory
@@ -741,7 +756,11 @@ bool BootAnimation::movie()
                 const Animation::Frame& frame(part.frames[j]);
                 nsecs_t lastFrame = systemTime();
 
-                if (r > 0 && !needSaveMem) {
+#ifdef BOARD_USES_TEXTURE_CACHE
+                if (r > 0 && !useTextureCache) {
+#else
+                if (r > 0) {
+#endif
                     glBindTexture(GL_TEXTURE_2D, frame.tid);
                 } else {
                     if (!needSaveMem && part.count != 1) {
@@ -786,6 +805,10 @@ bool BootAnimation::movie()
                 }
 
                 checkExit();
+#ifdef BOARD_USES_TEXTURE_CACHE
+                if (useTextureCache)
+                    glDeleteTextures(1, &frame.tid);
+#endif
             }
 
             usleep(part.pause * ns2us(frameDuration));

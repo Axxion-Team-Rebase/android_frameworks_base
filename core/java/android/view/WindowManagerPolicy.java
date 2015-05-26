@@ -415,6 +415,7 @@ public interface WindowManagerPolicy {
 
         public void shutdown(boolean confirm);
         public void rebootSafeMode(boolean confirm);
+        public void reboot(String reason, boolean confirm);
 
         /**
          * Return the window manager lock needed to correctly call "Lw" methods.
@@ -426,6 +427,8 @@ public interface WindowManagerPolicy {
 
         /** Unregister a system listener for touch events */
         void unregisterPointerEventListener(PointerEventListener listener);
+
+        void addSystemUIVisibilityFlag(int flags);
     }
 
     public interface PointerEventListener {

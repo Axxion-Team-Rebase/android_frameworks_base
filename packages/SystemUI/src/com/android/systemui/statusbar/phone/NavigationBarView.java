@@ -16,6 +16,9 @@
 
 package com.android.systemui.statusbar.phone;
 
+
+import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
 import android.animation.LayoutTransition.TransitionListener;
 import android.animation.ObjectAnimator;
@@ -45,6 +48,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Space;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
@@ -57,8 +61,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class NavigationBarView extends LinearLayout {
-    final static boolean DEBUG = false;
-    final static String TAG = "PhoneStatusBar/NavigationBarView";
+    private static final boolean DEBUG = NavbarUtils.DEBUG;
+    private final static String TAG = "PhoneStatusBar/NavigationBarView";
 
     // slippery nav bar when everything is disabled, e.g. during setup
     final static boolean SLIPPERY_WHEN_DISABLED = true;
@@ -183,7 +187,6 @@ public class NavigationBarView extends LinearLayout {
         mShowMenu = false;
         mDelegateHelper = new DelegateViewHelper(this);
         mTaskSwitchHelper = new NavigationBarViewTaskSwitchHelper(context);
-
         getIcons(res);
 
         mBarTransitions = new NavigationBarTransitions(this);
@@ -320,8 +323,6 @@ public class NavigationBarView extends LinearLayout {
         getImeSwitchButton().setVisibility(showImeButton ? View.VISIBLE : View.INVISIBLE);
         // Update menu button in case the IME state has changed.
         setMenuVisibility(mShowMenu, true);
-
-
         setDisabledFlags(mDisabledFlags, true);
     }
 

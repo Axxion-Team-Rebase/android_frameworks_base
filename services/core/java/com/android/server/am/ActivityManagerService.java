@@ -90,6 +90,8 @@ import com.android.server.pm.UserManagerService;
 import com.android.server.statusbar.StatusBarManagerInternal;
 import com.android.server.wm.AppTransition;
 import com.android.server.wm.WindowManagerService;
+import com.android.server.power.PowerManagerService;
+
 import com.google.android.collect.Lists;
 import com.google.android.collect.Maps;
 
@@ -302,7 +304,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
     // Amount of time after a call to stopAppSwitches() during which we will
     // prevent further untrusted switches from happening.
-    static final long APP_SWITCH_DELAY_TIME = 5*1000;
+    static final long APP_SWITCH_DELAY_TIME = 1*1000;
 
     // How long we wait for a launched process to attach to the activity manager
     // before we decide it's never going to come up for real.
@@ -1190,6 +1192,7 @@ public final class ActivityManagerService extends ActivityManagerNative
     int mProcessLimitOverride = -1;
 
     WindowManagerService mWindowManager;
+    PowerManagerService mPowerManager;
 
     final ActivityThread mSystemThread;
 
@@ -1229,7 +1232,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 TAG, "Death received in " + this
                 + " for thread " + mAppThread.asBinder());
             synchronized(ActivityManagerService.this) {
-                appDiedLocked(mApp, mPid, mAppThread);
+                appDiedLocked(mApp, mPid, mAppThread, true);
             }
         }
     }
@@ -1941,6 +1944,10 @@ public final class ActivityManagerService extends ActivityManagerNative
     public void setWindowManager(WindowManagerService wm) {
         mWindowManager = wm;
         mStackSupervisor.setWindowManager(wm);
+    }
+
+    public void setPowerManager(PowerManagerService ps) {
+        mPowerManager = ps;
     }
 
     public void setUsageStatsManager(UsageStatsManagerInternal usageStatsManager) {
@@ -4678,10 +4685,11 @@ public final class ActivityManagerService extends ActivityManagerNative
     }
 
     final void appDiedLocked(ProcessRecord app) {
-       appDiedLocked(app, app.pid, app.thread);
+       appDiedLocked(app, app.pid, app.thread, false);
     }
 
-    final void appDiedLocked(ProcessRecord app, int pid, IApplicationThread thread) {
+    final void appDiedLocked(ProcessRecord app, int pid, IApplicationThread thread,
+            boolean fromBinderDied) {
         // First check if this ProcessRecord is actually active for the pid.
         synchronized (mPidsSelfLocked) {
             ProcessRecord curProc = mPidsSelfLocked.get(pid);
@@ -4697,7 +4705,9 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
 
         if (!app.killed) {
-            Process.killProcessQuiet(pid);
+            if (!fromBinderDied) {
+                Process.killProcessQuiet(pid);
+            }
             Process.killProcessGroup(app.info.uid, pid);
             app.killed = true;
         }

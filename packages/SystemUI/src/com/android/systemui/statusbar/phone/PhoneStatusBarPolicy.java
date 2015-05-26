@@ -26,12 +26,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ContentResolver;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.storage.StorageEventListener;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.provider.Settings.Global;
 import android.telecom.TelecomManager;
 import android.telephony.SubscriptionManager;
@@ -212,8 +214,11 @@ public class PhoneStatusBarPolicy {
 
     private void updateAlarm() {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-	boolean alarmSet = alarmManager.getNextAlarmClock(UserHandle.USER_CURRENT) != null;
-        mService.setIconVisibility(SLOT_ALARM_CLOCK, alarmSet);
+        boolean alarmSet = alarmManager.getNextAlarmClock(UserHandle.USER_CURRENT) != null;
+        boolean alarmVisible = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.STATUSBAR_SHOW_ALARM_ICON, 1, UserHandle.USER_CURRENT) == 1;
+        if (DEBUG) Log.v(TAG, "updateAlarm " + alarmSet + " "  + alarmVisible);
+        mService.setIconVisibility(SLOT_ALARM_CLOCK, alarmVisible && alarmSet);
     }
 
     private final void updateSyncState(Intent intent) {
@@ -267,6 +272,7 @@ public class PhoneStatusBarPolicy {
         boolean zenVisible = false;
         int zenIconId = 0;
         String zenDescription = null;
+        boolean zenModeNoInterruptions = false;
 
         boolean volumeVisible = false;
         int volumeIconId = 0;
@@ -274,6 +280,7 @@ public class PhoneStatusBarPolicy {
 
         if (mZen == Global.ZEN_MODE_NO_INTERRUPTIONS) {
             zenVisible = true;
+            zenModeNoInterruptions = true;
             zenIconId = R.drawable.stat_sys_zen_none;
             zenDescription = mContext.getString(R.string.zen_no_interruptions);
         } else if (mZen == Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS) {
@@ -289,12 +296,22 @@ public class PhoneStatusBarPolicy {
             volumeDescription = mContext.getString(R.string.accessibility_ringer_vibrate);
         }
 
+        if (audioManager.getRingerModeInternal() == AudioManager.RINGER_MODE_SILENT) {
+            volumeVisible = true;
+            volumeIconId = R.drawable.stat_sys_ringer_silent;
+            volumeDescription = mContext.getString(R.string.accessibility_ringer_silent);
+        }
+
         if (zenVisible) {
             mService.setIcon(SLOT_ZEN, zenIconId, 0, zenDescription);
         }
         if (zenVisible != mZenVisible) {
             mService.setIconVisibility(SLOT_ZEN, zenVisible);
             mZenVisible = zenVisible;
+        }
+        // overrules volume icon
+        if (zenModeNoInterruptions) {
+            volumeVisible = false;
         }
 
         if (volumeVisible) {

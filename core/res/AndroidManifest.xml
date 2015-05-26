@@ -227,6 +227,8 @@
 
     <protected-broadcast android:name="android.os.UpdateLock.UPDATE_LOCK_CHANGED" />
 
+    <protected-broadcast android:name="android.intent.action.NAVBAR_RING_EDIT" />
+
     <protected-broadcast android:name="android.intent.action.DREAMING_STARTED" />
     <protected-broadcast android:name="android.intent.action.DREAMING_STOPPED" />
     <protected-broadcast android:name="android.intent.action.ANY_DATA_STATE" />
@@ -2922,6 +2924,13 @@
         android:label="@string/permlab_bindCarrierMessagingService"
         android:description="@string/permdesc_bindCarrierMessagingService"
         android:protectionLevel="signature|system" />
+
+    <!-- Allows an application to use the system Torch service
+        @hide-->
+    <permission android:name="android.permission.ACCESS_TORCH_SERVICE"
+        android:label="@string/permlab_accessTorchService"
+        android:description="@string/permdesc_accessTorchService"
+        android:protectionLevel="signature" />
 
     <!-- The system process is explicitly the only one allowed to launch the
          confirmation UI for full backup/restore -->

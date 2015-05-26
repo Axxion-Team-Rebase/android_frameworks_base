@@ -73,11 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // database gets upgraded properly. At a minimum, please confirm that 'upgradeVersion'
     // is properly propagated through your change.  Not doing so will result in a loss of user
     // settings.
-    private static final int DATABASE_VERSION = 113;
-
-    private static final String HEADSET = "_headset";
-    private static final String SPEAKER = "_speaker";
-    private static final String EARPIECE = "_earpiece";
+    private static final int DATABASE_VERSION = 119;
 
     private Context mContext;
     private int mUserHandle;
@@ -1836,6 +1832,86 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             upgradeVersion = 113;
         }
+        // We skipped 114 to handle a merge conflict with the introduction of theater mode.
+
+        if (upgradeVersion < 115) {
+            if (mUserHandle == UserHandle.USER_OWNER) {
+                db.beginTransaction();
+                SQLiteStatement stmt = null;
+                try {
+                    stmt = db.compileStatement("INSERT OR IGNORE INTO global(name,value)"
+                            + " VALUES(?,?);");
+                    loadBooleanSetting(stmt, Global.THEATER_MODE_ON,
+                            R.bool.def_theater_mode_on);
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                    if (stmt != null) stmt.close();
+                }
+            }
+            upgradeVersion = 115;
+        }
+
+        if (upgradeVersion < 116) {
+            if (mUserHandle == UserHandle.USER_OWNER) {
+                db.beginTransaction();
+                SQLiteStatement stmt = null;
+                try {
+                    stmt = db.compileStatement("INSERT OR IGNORE INTO global(name,value)"
+                            + " VALUES(?,?);");
+                    loadSetting(stmt, Settings.Global.ENHANCED_4G_MODE_ENABLED, ImsConfig.FeatureValueConstants.ON);
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                    if (stmt != null) stmt.close();
+                }
+            }
+            upgradeVersion = 116;
+        }
+
+        if (upgradeVersion < 117) {
+            db.beginTransaction();
+            try {
+                String[] systemToSecure = {
+                        Settings.Secure.LOCK_TO_APP_EXIT_LOCKED
+                };
+                moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE, systemToSecure, true);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+            upgradeVersion = 117;
+        }
+
+        if (upgradeVersion < 118) {
+            // Reset rotation-lock-for-accessibility on upgrade, since it now hides the display
+            // setting.
+            db.beginTransaction();
+            SQLiteStatement stmt = null;
+            try {
+                stmt = db.compileStatement("INSERT OR REPLACE INTO system(name,value)"
+                        + " VALUES(?,?);");
+                loadSetting(stmt, Settings.System.HIDE_ROTATION_LOCK_TOGGLE_FOR_ACCESSIBILITY, 0);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+                if (stmt != null) stmt.close();
+            }
+            upgradeVersion = 118;
+        }
+
+        /************* The following are Terminus changes ************/
+
+        if (upgradeVersion < 119) {
+            String[] qsTiles = new String[] {
+                    Settings.Secure.QS_TILES,
+                    Settings.Secure.QS_USE_MAIN_TILES
+            };
+
+            moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
+                    qsTiles, true);
+            upgradeVersion = 119;
+        }
 
         // *** Remember to update DATABASE_VERSION above!
 
@@ -2329,6 +2405,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    private void loadHeadsUpSetting(SQLiteStatement stmt) {
+        String dndValues = mContext.getResources()
+                .getString(R.string.def_heads_up_notification_dnd_values);
+        String blackListValues = mContext.getResources()
+                .getString(R.string.def_heads_up_notification_blacklist_values);
+        if (!TextUtils.isEmpty(dndValues)) {
+            loadSetting(stmt, Settings.System.HEADS_UP_NOTIFICATION, "0");
+            loadSetting(stmt, Settings.System.HEADS_UP_CUSTOM_VALUES, dndValues);
+            loadSetting(stmt, Settings.System.HEADS_UP_BLACKLIST_VALUES, blackListValues);
+        }
+    }
+
     private void loadSettings(SQLiteDatabase db) {
         loadSystemSettings(db);
         loadSecureSettings(db);
@@ -2379,11 +2467,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             loadIntegerSetting(stmt, Settings.System.POINTER_SPEED,
                     R.integer.def_pointer_speed);
 
-            loadStringSetting(stmt, Settings.System.TIME_12_24,
-                    R.string.def_time_format);
-
-            loadStringSetting(stmt, Settings.System.DATE_FORMAT,
-                    R.string.def_date_format);
+            loadHeadsUpSetting(stmt);
         } finally {
             if (stmt != null) stmt.close();
         }

@@ -666,7 +666,8 @@ class MountService extends IMountService.Stub
             final UserHandle user = new UserHandle(userId);
 
             final String action = intent.getAction();
-            if (Intent.ACTION_USER_ADDED.equals(action)) {
+            // Create an emulated volume for the new user only if the volume is emulated
+            if (Intent.ACTION_USER_ADDED.equals(action) && isExternalStorageEmulated()) {
                 synchronized (mVolumesLock) {
                     createEmulatedVolumeForUserLocked(user);
                 }
@@ -1373,9 +1374,22 @@ class MountService extends IMountService.Stub
         mVolumeStates.clear();
 
         Resources resources = mContext.getResources();
-
         int id = com.android.internal.R.xml.storage_list;
-        XmlResourceParser parser = resources.getXml(id);
+        String pkg = mContext.getPackageName();
+        int idAlt = resources.getIdentifier("storage_list_legacy", "xml", pkg);
+        String legacy = SystemProperties.get("sys.storage_legacy", "");
+        XmlResourceParser parser = null;
+
+        if ((legacy.equals("1") || legacy.equalsIgnoreCase("true")) && idAlt != 0) {
+            parser = resources.getXml(idAlt);
+            Slog.i(TAG, "readStorageListLocked: using legacy storage list");
+        }
+
+        if (parser == null) {
+            Slog.i(TAG, "readStorageListLocked: using default storage list");
+            parser = resources.getXml(id);
+        }
+
         AttributeSet attrs = Xml.asAttributeSet(parser);
 
         try {

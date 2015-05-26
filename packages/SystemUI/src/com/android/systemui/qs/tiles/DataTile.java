@@ -46,6 +46,9 @@ import com.android.systemui.qs.QSTile;
 
 /** Quick settings tile: Mobile data switch **/
 public class DataTile extends QSTile<QSTile.BooleanState> {
+	
+    private static final Intent WIRELESS_SETTINGS = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+    
     TelephonyManager mTelephonyManager;
     private DataObserver mDataObserver;
     private boolean mListening = false;
@@ -74,18 +77,37 @@ public class DataTile extends QSTile<QSTile.BooleanState> {
         }
     }
 
+    @Override
+    protected void handleSecondaryClick() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(
+                "com.android.settings",
+                "com.android.settings.Settings$DataUsageSummaryActivity"));
+        mHost.startSettingsActivity(intent);
+    }
+
+    @Override
+    protected void handleLongClick() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(
+                "com.android.settings",
+                "com.android.settings.Settings$DataUsageSummaryActivity"));
+        mHost.startSettingsActivity(intent);
+    }
+
     private void setEnabled(boolean enabled) {
         // Do not make mobile data on/off if airplane mode on or has no sim card
         if (Settings.Global.getInt(mContext.getContentResolver(),
-                Settings.Global.AIRPLANE_MODE_ON, 0) != 0 || !hasIccCard()) {
+                Settings.Global.AIRPLANE_MODE_ON, 0) != 0 || !mTelephonyManager.hasIccCard()) {
             return;
         }
-        int phoneCount = mTelephonyManager.getPhoneCount();
+        mTelephonyManager.setDataEnabled(enabled);
+        Settings.Global.putInt(mContext.getContentResolver(),
+                Settings.Global.MOBILE_DATA, (enabled) ? 1 : 0);
+        int phoneCount = mTelephonyManager.getDefault().getPhoneCount();
         for (int i = 0; i < phoneCount; i++) {
             Settings.Global.putInt(mContext.getContentResolver(),
                     Settings.Global.MOBILE_DATA + i, (enabled) ? 1 : 0);
-            int[] subId = SubscriptionManager.getSubId(i);
-            mTelephonyManager.setDataEnabled(subId[0], enabled);
         }
     }
 
@@ -97,11 +119,11 @@ public class DataTile extends QSTile<QSTile.BooleanState> {
         state.visible = true;
         state.label = mContext.getString(R.string.quick_settings_mobile_data_label);
         if (dataOn) {
-            state.iconId = R.drawable.ic_qs_data_on;
+            state.icon = ResourceIcon.get(R.drawable.ic_qs_data_on);
             state.contentDescription = mContext.getString(
                     R.string.accessibility_quick_settings_data_on);
         } else {
-            state.iconId = R.drawable.ic_qs_data_off;
+            state.icon = ResourceIcon.get(R.drawable.ic_qs_data_off);
             state.contentDescription = mContext.getString(
                     R.string.accessibility_quick_settings_data_off);
         }

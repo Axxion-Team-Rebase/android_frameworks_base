@@ -194,7 +194,8 @@ static inline SkColorType convertPixelFormat(PixelFormat format) {
 
 static void nativeSetDirtyRect(JNIEnv* env, jclass clazz,
         jlong nativeObject, jobject dirtyRect) {
-
+			
+#ifdef QCOM_HARDWARE
     sp<Surface> surface(reinterpret_cast<Surface *>(nativeObject));
 
     if (!isSurfaceValid(surface)) {
@@ -209,6 +210,7 @@ static void nativeSetDirtyRect(JNIEnv* env, jclass clazz,
     rect.bottom = env->GetIntField(dirtyRect, gRectClassInfo.bottom);
 
     surface->setDirtyRect(&rect);
+#endif
 }
 
 static jlong nativeLockCanvas(JNIEnv* env, jclass clazz,

@@ -835,6 +835,24 @@ public final class PowerManager {
     }
 
     /**
+     * Boost the CPU. Boosts the cpu for the given duration in microseconds.
+     * Requires the {@link android.Manifest.permission#CPU_BOOST} permission.
+     *
+     * @param duration in microseconds to boost the CPU
+     *
+     * @hide
+     */
+    public void cpuBoost(int duration)
+    {
+        try {
+            if (mService != null) {
+                mService.cpuBoost(duration);
+            }
+        } catch (RemoteException e) {
+        }
+    }
+
+    /**
      * Intent that is broadcast when the state of {@link #isPowerSaveMode()} changes.
      * This broadcast is only sent to registered receivers.
      */
@@ -854,6 +872,31 @@ public final class PowerManager {
 
     /** @hide */
     public static final String EXTRA_POWER_SAVE_MODE = "mode";
+
+    /**
+     * Get current active power profile if supported
+     *
+     * @hide
+     */
+    public String getCurrentPowerProfile() {
+        try {
+            return mService.getCurrentPowerProfile();
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Force set a profile overruling automatic profile selection
+     *
+     * @hide
+     */
+    void setPowerProfile(String profile) {
+        try {
+            mService.setPowerProfile(profile);
+        } catch (RemoteException e) {
+        }
+    }
 
     /**
      * A wake lock is a mechanism to indicate that your application needs

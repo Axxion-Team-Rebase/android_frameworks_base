@@ -156,6 +156,8 @@ LOCAL_SRC_FILES += \
 	core/java/android/hardware/IConsumerIrService.aidl \
 	core/java/android/hardware/IProCameraUser.aidl \
 	core/java/android/hardware/IProCameraCallbacks.aidl \
+	core/java/android/hardware/ITorchService.aidl \
+	core/java/android/hardware/ITorchCallback.aidl \
 	core/java/android/hardware/camera2/ICameraDeviceUser.aidl \
 	core/java/android/hardware/camera2/ICameraDeviceCallbacks.aidl \
 	core/java/android/hardware/ISerialManager.aidl \
@@ -242,6 +244,10 @@ LOCAL_SRC_FILES += \
 	core/java/android/service/voice/IVoiceInteractionService.aidl \
 	core/java/android/service/voice/IVoiceInteractionSession.aidl \
 	core/java/android/service/voice/IVoiceInteractionSessionService.aidl \
+	core/java/android/service/gesture/IEdgeGestureService.aidl \
+	core/java/android/service/gesture/IEdgeGestureActivationListener.aidl \
+	core/java/android/service/gesture/IEdgeGestureHostCallback.aidl \
+	core/java/android/service/gesture/IGestureService.aidl \
 	core/java/android/service/wallpaper/IWallpaperConnection.aidl \
 	core/java/android/service/wallpaper/IWallpaperEngine.aidl \
 	core/java/android/service/wallpaper/IWallpaperService.aidl \
