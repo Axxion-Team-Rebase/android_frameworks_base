@@ -2753,7 +2753,6 @@ public final class ActivityStackSupervisor implements DisplayListener {
             }
         }
         mPm.cpuBoost(2000 * 1000);
-        
         if (DEBUG_TASKS) Slog.d(TAG, "No task found");
         return null;
     }
