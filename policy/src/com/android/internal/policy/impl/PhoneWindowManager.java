@@ -231,6 +231,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int ROTATION_180_MODE = 4;
     private static final int ROTATION_270_MODE = 8;
 
+    int mUserNavBarHeight;
+    int mUserNavBarHeightLand;
+    int mUserNavBarWidth;
+
     /**
      * These are the system UI flags that, when changing, can cause the layout
      * of the screen to change.
@@ -347,6 +351,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mCanHideNavigationBar = false;
     boolean mNavigationBarCanMove = false; // can the navigation bar ever move to the side?
     boolean mNavigationBarOnBottom = true; // is the navigation bar on the bottom *right now*?
+    boolean mNavigationBarLeftInLandscape = false; // Navigation bar left handed?
     int[] mNavigationBarHeightForRotation = new int[4];
     int[] mNavigationBarWidthForRotation = new int[4];
 
@@ -538,6 +543,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mHideLockScreen;
     boolean mForcingShowNavBar;
     int mForcingShowNavBarLayer;
+
+    boolean mDevForceNavbar = false;
 
     // States of keyguard dismiss.
     private static final int DISMISS_KEYGUARD_NONE = 0; // Keyguard not being dismissed.
@@ -867,7 +874,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.KEY_MENU_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
+                    UserHandle.USER_ALL);                    
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.KEY_ASSIST_ACTION), false, this,
                     UserHandle.USER_ALL);
@@ -897,6 +904,21 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HARDWARE_KEYS_DISABLE), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVBAR_FORCE_ENABLE), false, this,
+                   UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_HEIGHT), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_WIDTH), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVBAR_LEFT_IN_LANDSCAPE), false, this,
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.USE_EDGE_SERVICE_FOR_GESTURES), false, this,
@@ -1800,10 +1822,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean hasHome = (mDeviceHardwareKeys & KEY_MASK_HOME) != 0;
         final boolean hasAssist = (mDeviceHardwareKeys & KEY_MASK_ASSIST) != 0;
         final boolean hasAppSwitch = (mDeviceHardwareKeys & KEY_MASK_APP_SWITCH) != 0;
-        final ContentResolver resolver = mContext.getContentResolver();
 
         // initialize all assignments to sane defaults
         mPressOnHomeBehavior = KEY_ACTION_HOME;
+
+        if (mDevForceNavbar) {
+            mDeviceHardwareKeys = 0;
+        }
+
+        final ContentResolver resolver = mContext.getContentResolver();
+
+        final boolean hasForceNavbar = Settings.System.getIntForUser(resolver,
+                Settings.System.NAVBAR_FORCE_ENABLE, 0, UserHandle.USER_CURRENT) == 1;
+
         mPressOnMenuBehavior = KEY_ACTION_MENU;
         if (!hasMenu || hasAssist) {
             mLongPressOnMenuBehavior = KEY_ACTION_NOTHING;
@@ -1953,20 +1984,36 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mStatusBarHeight =
                 res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
 
-        // Height of the navigation bar when presented horizontally at bottom
+       // Height of the navigation bar when presented horizontally at bottom
         mNavigationBarHeightForRotation[mPortraitRotation] =
         mNavigationBarHeightForRotation[mUpsideDownRotation] =
-                res.getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_height);
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_HEIGHT,
+                        mContext.getResources()
+                                .getDimensionPixelSize(
+                                        com.android.internal.R.dimen.navigation_bar_height));
+
         mNavigationBarHeightForRotation[mLandscapeRotation] =
-        mNavigationBarHeightForRotation[mSeascapeRotation] = res.getDimensionPixelSize(
-                com.android.internal.R.dimen.navigation_bar_height_landscape);
+        mNavigationBarHeightForRotation[mSeascapeRotation] =
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE,
+                        mContext.getResources()
+                                .getDimensionPixelSize(
+                                        com.android.internal.R.dimen.navigation_bar_height_landscape));
 
         // Width of the navigation bar when presented vertically along one side
         mNavigationBarWidthForRotation[mPortraitRotation] =
         mNavigationBarWidthForRotation[mUpsideDownRotation] =
         mNavigationBarWidthForRotation[mLandscapeRotation] =
         mNavigationBarWidthForRotation[mSeascapeRotation] =
-                res.getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_width);
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_WIDTH,
+                        mContext.getResources()
+                                .getDimensionPixelSize(
+                                        com.android.internal.R.dimen.navigation_bar_width));
 
         // SystemUI (status bar) layout policy
         int shortSizeDp = shortSize * DisplayMetrics.DENSITY_DEFAULT / density;
@@ -1976,6 +2023,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mNavigationBarCanMove = shortSizeDp < 600;
 
         mHasNavigationBar = res.getBoolean(com.android.internal.R.bool.config_showNavigationBar);
+
         // Allow a system property to override this. Used by the emulator.
         // See also hasNavigationBar().
         String navBarOverride = SystemProperties.get("qemu.hw.mainkeys");
@@ -2019,7 +2067,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      *         navigation bar and touch exploration is not enabled
      */
     private boolean canHideNavigationBar() {
-        return mHasNavigationBar
+        return hasNavigationBar()
                 && !mAccessibilityManager.isTouchExplorationEnabled();
     }
 
@@ -2063,6 +2111,30 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 updateWakeGestureListenerLp();
             }
 
+            int NavHeight = Settings.System.getInt(resolver,
+                    Settings.System.NAVIGATION_BAR_HEIGHT, 0);
+            int NavHeightLand = Settings.System.getInt(resolver,
+                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE, 0);
+            int NavWidth = Settings.System.getInt(resolver,
+                    Settings.System.NAVIGATION_BAR_WIDTH, 0);
+            if (NavHeight != mUserNavBarHeight || NavHeightLand != mUserNavBarHeightLand || NavWidth != mUserNavBarWidth) {
+                mUserNavBarHeight = NavHeight;
+                mUserNavBarHeightLand = NavHeightLand;
+                mUserNavBarWidth = NavWidth;
+                resetScreenHelper();
+            }
+
+            boolean devForceNavbar = Settings.System.getIntForUser(resolver,
+                    Settings.System.NAVBAR_FORCE_ENABLE, 0, UserHandle.USER_CURRENT) == 1;
+            if (devForceNavbar != mDevForceNavbar) {
+                mDevForceNavbar = devForceNavbar;
+            }
+
+            mNavigationBarLeftInLandscape = Settings.System.getInt(resolver,
+                    Settings.System.NAVBAR_LEFT_IN_LANDSCAPE, 0) == 1;
+
+            updateKeyAssignments();
+
             final boolean useEdgeService = Settings.System.getIntForUser(resolver,
                     Settings.System.USE_EDGE_SERVICE_FOR_GESTURES, 1, UserHandle.USER_CURRENT) == 1;
             if (useEdgeService ^ mUsingEdgeGestureServiceForGestures && mSystemReady) {
@@ -2100,8 +2172,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             mVolumeMusicControls = Settings.System.getIntForUser(resolver,
                     Settings.System.VOLUME_MUSIC_CONTROLS, 1, UserHandle.USER_CURRENT) != 0;
-
-            updateKeyAssignments();
 
             if (mSystemReady) {
                 int pointerLocation = Settings.System.getIntForUser(resolver,
@@ -2159,6 +2229,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return mWakeGestureEnabledSetting && !mAwake
                 && (!mLidControlsSleep || mLidState != LID_CLOSED)
                 && mWakeGestureListener.isSupported();
+    }
+
+    private void resetScreenHelper() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(metrics);
+        int density = metrics.densityDpi;
+        if(mDisplay != null)
+            setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, density);
     }
 
     private void enablePointerLocation() {
@@ -2522,7 +2601,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     @Override
     public int getNonDecorDisplayWidth(int fullWidth, int fullHeight, int rotation) {
-        if (mHasNavigationBar) {
+        if (hasNavigationBar()) {
             // For a basic navigation bar, when we are in landscape mode we place
             // the navigation bar to the side.
             if (mNavigationBarCanMove && fullWidth > fullHeight) {
@@ -2534,7 +2613,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     @Override
     public int getNonDecorDisplayHeight(int fullWidth, int fullHeight, int rotation) {
-        if (mHasNavigationBar) {
+        if (hasNavigationBar()) {
             // For a basic navigation bar, when we are in portrait mode we place
             // the navigation bar to the bottom.
             if (!mNavigationBarCanMove || fullWidth < fullHeight) {
@@ -2824,7 +2903,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 return isKeyguard ? -1 : R.anim.dock_top_enter;
             }
         } else if (win == mNavigationBar) {
-            // This can be on either the bottom or the right.
+            // This can be on either the bottom, left, or the right.
             if (mNavigationBarOnBottom) {
                 if (transit == TRANSIT_EXIT
                         || transit == TRANSIT_HIDE) {
@@ -2836,10 +2915,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             } else {
                 if (transit == TRANSIT_EXIT
                         || transit == TRANSIT_HIDE) {
-                    return R.anim.dock_right_exit;
+                    return mNavigationBarLeftInLandscape
+                            ? R.anim.dock_left_exit : R.anim.dock_right_exit;
                 } else if (transit == TRANSIT_ENTER
                         || transit == TRANSIT_SHOW) {
-                    return R.anim.dock_right_enter;
+                    return mNavigationBarLeftInLandscape
+                            ? R.anim.dock_left_enter : R.anim.dock_right_enter;
                 }
             }
         }
@@ -3761,6 +3842,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+    @Override
+    public void sendHomeAction() {
+        launchHomeFromHotKey();
+    }
+
     /**
      * A home key -> launch home action was detected.  Take the appropriate action
      * given the situation with the keyguard.
@@ -4088,6 +4174,34 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         // and not in the process of animating on or off, then
                         // we can tell the app that it is covered by it.
                         mSystemBottom = mTmpNavigationFrame.top;
+                    }
+                } else if (mNavigationBarLeftInLandscape) {
+                    // Landscape screen; nav bar goes to the left.
+                    int right = overscanLeft + mNavigationBarWidthForRotation[displayRotation];
+                    mTmpNavigationFrame.set(0, 0, right, displayHeight);
+                    mStableLeft = mStableFullscreenLeft = mTmpNavigationFrame.right;
+                    mStableFullscreenLeft = mTmpNavigationFrame.right;
+                    if (transientNavBarShowing) {
+                        mNavigationBarController.setBarShowingLw(true);
+                    } else if (navVisible) {
+                        mNavigationBarController.setBarShowingLw(true);
+                        mDockLeft = mTmpNavigationFrame.right;
+                        mRestrictedScreenLeft = mDockLeft;
+                        mRestrictedScreenWidth = mDockRight - mRestrictedScreenLeft;
+                        mRestrictedOverscanScreenLeft = mRestrictedScreenLeft;
+                        mRestrictedOverscanScreenWidth = mDockRight
+                                - mRestrictedOverscanScreenLeft;
+                    } else {
+                        // We currently want to hide the navigation UI.
+                        mNavigationBarController.setBarShowingLw(false);
+                    }
+
+                    if (navVisible && !navTranslucent && !mNavigationBar.isAnimatingLw()
+                            && !mNavigationBarController.wasRecentlyTranslucent()) {
+                        // If the nav bar is currently requested to be visible,
+                        // and not in the process of animating on or off, then
+                        // we can tell the app that it is covered by it.
+                        mSystemLeft = mTmpNavigationFrame.right;
                     }
                 } else {
                     // Landscape screen; nav bar goes to the right.
@@ -5398,6 +5512,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
         final int keyCode = event.getKeyCode();
+        final int scanCode = event.getScanCode();
 
         if (SystemProperties.getInt("sys.quickboot.enable", 0) == 1) {
 
@@ -7217,6 +7332,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // overridden by qemu.hw.mainkeys in the emulator.
     @Override
     public boolean hasNavigationBar() {
+        return mHasNavigationBar || mDevForceNavbar;
+    }
+ 
+    @Override 
+    public boolean needsNavigationBar() {
         return mHasNavigationBar;
     }
 
