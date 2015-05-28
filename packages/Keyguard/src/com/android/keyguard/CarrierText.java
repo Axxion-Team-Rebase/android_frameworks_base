@@ -16,19 +16,21 @@
 
 package com.android.keyguard;
 
+import java.util.List;
+import java.util.Locale;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
-import android.text.method.SingleLineTransformationMethod;
+import android.net.ConnectivityManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
-import android.telephony.TelephonyManager;
+import android.text.method.SingleLineTransformationMethod;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.internal.telephony.IccCardConstants;
@@ -36,87 +38,41 @@ import com.android.internal.telephony.IccCardConstants.State;
 import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.widget.LockPatternUtils;
 
-import java.util.Locale;
-import java.util.HashMap;
-import android.util.Log;
-
-public class CarrierText extends LinearLayout {
-    private static final String TAG = "CarrierText";
+public class CarrierText extends TextView {
     private static final boolean DEBUG = KeyguardConstants.DEBUG;
-    private static final int mNumPhones = TelephonyManager.getDefault().getPhoneCount();
+    private static final String TAG = "CarrierText";
+
     private static CharSequence mSeparator;
 
     private LockPatternUtils mLockPatternUtils;
+    private KeyguardUpdateMonitor mKeyguardUpdateMonitor;
 
-    private boolean mShowAPM;
-
-    private KeyguardUpdateMonitor mUpdateMonitor;
-    private TextView mOperatorName[];
-    private TextView mOperatorSeparator[];
-    private TextView mAirplaneModeText;
-
-    private KeyguardUpdateMonitorCallback mCallback = new KeyguardUpdateMonitorCallback() {
+    private KeyguardUpdateMonitorCallback mCallback = new KeyguardUpdateMonitorCallback(new KeyguardUpdateMonitorCallback() {
         @Override
-        public void onRefreshCarrierInfo(int subId, CharSequence plmn, CharSequence spn) {
-            updateCarrierText(mUpdateMonitor.getSimState(subId), plmn, spn, subId);
-        }
-
-        @Override
-        public void onSimStateChanged(int subId, IccCardConstants.State simState) {
-            updateCarrierText(simState, mUpdateMonitor.getTelephonyPlmn(subId),
-                mUpdateMonitor.getTelephonySpn(subId), subId);
-        }
-
-        @Override
-        void onAirplaneModeChanged(boolean on) {
-            if (on && mShowAPM) {
-                for (int i = 0; i < mNumPhones; i++) {
-                    mOperatorName[i].setVisibility(View.GONE);
-                    if (i < mNumPhones-1) {
-                        mOperatorSeparator[i].setVisibility(View.GONE);
-                    }
-                }
-                if (mAirplaneModeText != null) {
-                    mAirplaneModeText.setVisibility(View.VISIBLE);
-                }
-            } else {
-                for (int i = 0; i < mNumPhones; i++) {
-                    mOperatorName[i].setVisibility(View.VISIBLE);
-                    if (i < mNumPhones-1) {
-                        mOperatorSeparator[i].setVisibility(View.VISIBLE);
-                    }
-                }
-                if (mAirplaneModeText != null) {
-                    mAirplaneModeText.setVisibility(View.GONE);
-                }
-            }
+        public void onRefreshCarrierInfo() {
+            updateCarrierText();
         }
 
         public void onScreenTurnedOff(int why) {
-            for (int i = 0; i < mNumPhones; i++) {
-                mOperatorName[i].setSelected(false);
-            }
-        };
+            setSelected(false);
+        }
 
         public void onScreenTurnedOn() {
-            for (int i = 0; i < mNumPhones; i++) {
-                mOperatorName[i].setSelected(true);
-            }
-        };
-    };
+            setSelected(true);
+        }
+    });
     /**
      * The status of this lock screen. Primarily used for widgets on LockScreen.
      */
     private static enum StatusMode {
         Normal, // Normal case (sim card present, it's not locked)
-        PersoLocked, // SIM card is 'perso locked'.
+        NetworkLocked, // SIM card is 'network locked'.
         SimMissing, // SIM card is missing.
         SimMissingLocked, // SIM card is missing, and device isn't provisioned; don't allow access
         SimPukLocked, // SIM card is PUK locked because SIM entered wrong too many times
         SimLocked, // SIM card is currently locked
         SimPermDisabled, // SIM card is permanently disabled due to PUK unlock failure
-        SimNotReady, // SIM is not ready yet. May never be on devices w/o a SIM.
-        SimIoError; //The sim card is faulty
+        SimNotReady; // SIM is not ready yet. May never be on devices w/o a SIM.
     }
 
     public CarrierText(Context context) {
@@ -125,27 +81,34 @@ public class CarrierText extends LinearLayout {
 
     public CarrierText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-            inflater.inflate(R.layout.keyguard_carrier_text_view, this, true);
-
         mLockPatternUtils = new LockPatternUtils(mContext);
-        mUpdateMonitor = KeyguardUpdateMonitor.getInstance(mContext);
-
-        mOperatorName = new TextView[mNumPhones];
-        mOperatorSeparator = new TextView[mNumPhones-1];
-
-        mShowAPM = context.getResources().getBoolean(R.bool.config_display_APM);
+        boolean useAllCaps;
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs, R.styleable.CarrierText, 0, 0);
+        try {
+            useAllCaps = a.getBoolean(R.styleable.CarrierText_allCaps, false);
+        } finally {
+            a.recycle();
+        }
+        setTransformationMethod(new CarrierTextTransformationMethod(mContext, useAllCaps));
     }
 
-    protected void updateCarrierText(State simState, CharSequence plmn, CharSequence spn,
-            int subId) {
-        if(DEBUG) Log.d(TAG, "updateCarrierText, simState=" + simState + " plmn=" + plmn
-            + " spn=" + spn +" subId=" + subId);
-        int phoneId = mUpdateMonitor.getPhoneIdBySubId(subId);
-        if (!mUpdateMonitor.isValidPhoneId(phoneId)) {
-            if(DEBUG) Log.d(TAG, "updateCarrierText, invalidate phoneId=" + phoneId);
-            return;
+    protected void updateCarrierText() {
+        boolean allSimsMissing = true;
+        CharSequence displayText = null;
+
+        List<SubscriptionInfo> subs = mKeyguardUpdateMonitor.getSubscriptionInfo(false);
+        final int N = subs.size();
+        if (DEBUG) Log.d(TAG, "updateCarrierText(): " + N);
+        for (int i = 0; i < N; i++) {
+            State simState = mKeyguardUpdateMonitor.getSimState(subs.get(i).getSubscriptionId());
+            CharSequence carrierName = subs.get(i).getCarrierName();
+            CharSequence carrierTextForSimState = getCarrierTextForSimState(simState, carrierName);
+            if (DEBUG) Log.d(TAG, "Handling " + simState + " " + carrierName);
+            if (carrierTextForSimState != null) {
+                allSimsMissing = false;
+                displayText = concatenate(displayText, carrierTextForSimState);
+            }
         }
         if (allSimsMissing) {
             if (N != 0) {
@@ -182,57 +145,39 @@ public class CarrierText extends LinearLayout {
                 displayText =  makeCarrierStringOnEmergencyCapable(
                         getContext().getText(R.string.keyguard_missing_sim_message_short), text);
             }
-            updateCarrierView.setText(text != null ? text.toString() : null);
         }
+        setText(displayText);
     }
-
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        final int[] carrierTextViewId = { R.id.airplane_mode, R.id.carrier1, R.id.carrier2,
-                R.id.carrier3, R.id.carrier_divider1, R.id.carrier_divider2 };
-        for (int i = 0; i < carrierTextViewId.length; i++) {
-            TextView carrierTextView = (TextView)findViewById(carrierTextViewId[i]);
-            if (carrierTextView != null) {
-                carrierTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                        getResources().getDimensionPixelSize(
-                                com.android.internal.R.dimen.text_size_small_material));
-           }
-       }
-   }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mSeparator = getResources().getString(com.android.internal.R.string.kg_text_message_separator);
-        int[] operatorNameId = {R.id.carrier1, R.id.carrier2, R.id.carrier3};
-        int[] operatorSepId = {R.id.carrier_divider1, R.id.carrier_divider2};
+        mSeparator = getResources().getString(
+                com.android.internal.R.string.kg_text_message_separator);
         final boolean screenOn = KeyguardUpdateMonitor.getInstance(mContext).isScreenOn();
         setSelected(screenOn); // Allow marquee to work.
-
-        for (int i = 0; i < mNumPhones; i++) {
-            mOperatorName[i] = (TextView) findViewById(operatorNameId[i]);
-            mOperatorName[i].setVisibility(View.VISIBLE);
-            mOperatorName[i].setSelected(true);
-            if (i < mNumPhones-1) {
-                mOperatorSeparator[i] = (TextView) findViewById(operatorSepId[i]);
-                mOperatorSeparator[i].setVisibility(View.VISIBLE);
-                mOperatorSeparator[i].setText("|");
-            }
-        }
-        mAirplaneModeText = (TextView) findViewById(R.id.airplane_mode);
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        KeyguardUpdateMonitor.getInstance(mContext).registerCallback(mCallback);
+        if (ConnectivityManager.from(mContext).isNetworkSupported(
+                ConnectivityManager.TYPE_MOBILE)) {
+            mKeyguardUpdateMonitor = KeyguardUpdateMonitor.getInstance(mContext);
+            mKeyguardUpdateMonitor.registerCallback(mCallback);
+        } else {
+            // Don't listen and clear out the text when the device isn't a phone.
+            mKeyguardUpdateMonitor = null;
+            setText("");
+        }
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        KeyguardUpdateMonitor.getInstance(mContext).removeCallback(mCallback);
+        if (mKeyguardUpdateMonitor != null) {
+            mKeyguardUpdateMonitor.removeCallback(mCallback);
+        }
     }
 
     /**
@@ -240,38 +185,31 @@ public class CarrierText extends LinearLayout {
      * and SPN as well as device capabilities, such as being emergency call capable.
      *
      * @param simState
-     * @param plmn
+     * @param text
      * @param spn
-     * @return
+     * @return Carrier text if not in missing state, null otherwise.
      */
     private CharSequence getCarrierTextForSimState(IccCardConstants.State simState,
-            CharSequence plmn, CharSequence spn) {
+            CharSequence text) {
         CharSequence carrierText = null;
         StatusMode status = getStatusForIccState(simState);
-        if (DEBUG) Log.d(TAG, "getCarrierTextForSimState: status=" + status +
-                " plmn=" + plmn + " spn=" + spn);
         switch (status) {
             case Normal:
-                carrierText = concatenate(plmn, spn);
+                carrierText = text;
                 break;
 
             case SimNotReady:
-                carrierText = null; // nothing to display yet.
+                // Null is reserved for denoting missing, in this case we have nothing to display.
+                carrierText = ""; // nothing to display yet.
                 break;
 
-            case PersoLocked:
+            case NetworkLocked:
                 carrierText = makeCarrierStringOnEmergencyCapable(
-                        getContext().getText(R.string.keyguard_perso_locked_message), plmn);
+                        mContext.getText(R.string.keyguard_network_locked_message), text);
                 break;
 
             case SimMissing:
-                // Shows "No SIM card | Emergency calls only" on devices that are voice-capable.
-                // This depends on mPlmn containing the text "Emergency calls only" when the radio
-                // has some connectivity. Otherwise, it should be null or empty and just show
-                // "No SIM card"
-                carrierText =  makeCarrierStringOnEmergencyCapable(
-                        getContext().getText(R.string.keyguard_missing_sim_message_short),
-                        plmn);
+                carrierText = null;
                 break;
 
             case SimPermDisabled:
@@ -280,30 +218,22 @@ public class CarrierText extends LinearLayout {
                 break;
 
             case SimMissingLocked:
-                carrierText =  makeCarrierStringOnEmergencyCapable(
-                        getContext().getText(R.string.keyguard_missing_sim_message_short),
-                        plmn);
+                carrierText = null;
                 break;
 
             case SimLocked:
                 carrierText = makeCarrierStringOnEmergencyCapable(
                         getContext().getText(R.string.keyguard_sim_locked_message),
-                        plmn);
+                        text);
                 break;
 
             case SimPukLocked:
                 carrierText = makeCarrierStringOnEmergencyCapable(
                         getContext().getText(R.string.keyguard_sim_puk_locked_message),
-                        plmn);
-                break;
-            case SimIoError:
-                carrierText = makeCarrierStringOnEmergencyCapable(
-                        getContext().getText(R.string.lockscreen_sim_error_message_short),
-                        plmn);
+                        text);
                 break;
         }
 
-        if (DEBUG) Log.d(TAG, "getCarrierTextForSimState: carrierText=" + carrierText);
         return carrierText;
     }
 
@@ -332,13 +262,13 @@ public class CarrierText extends LinearLayout {
                 && (simState == IccCardConstants.State.ABSENT ||
                         simState == IccCardConstants.State.PERM_DISABLED);
 
-        // Assume we're PERSO_LOCKED if not provisioned
-        simState = missingAndNotProvisioned ? IccCardConstants.State.PERSO_LOCKED : simState;
+        // Assume we're NETWORK_LOCKED if not provisioned
+        simState = missingAndNotProvisioned ? IccCardConstants.State.NETWORK_LOCKED : simState;
         switch (simState) {
             case ABSENT:
                 return StatusMode.SimMissing;
-            case PERSO_LOCKED:
-                return StatusMode.PersoLocked;
+            case NETWORK_LOCKED:
+                return StatusMode.SimMissingLocked;
             case NOT_READY:
                 return StatusMode.SimNotReady;
             case PIN_REQUIRED:
@@ -351,8 +281,6 @@ public class CarrierText extends LinearLayout {
                 return StatusMode.SimPermDisabled;
             case UNKNOWN:
                 return StatusMode.SimMissing;
-            case CARD_IO_ERROR:
-                return StatusMode.SimIoError;
         }
         return StatusMode.SimMissing;
     }
@@ -380,7 +308,7 @@ public class CarrierText extends LinearLayout {
         int carrierHelpTextId = 0;
         StatusMode status = getStatusForIccState(simState);
         switch (status) {
-            case PersoLocked:
+            case NetworkLocked:
                 carrierHelpTextId = R.string.keyguard_instructions_when_pattern_disabled;
                 break;
 

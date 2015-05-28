@@ -459,6 +459,7 @@
     <!-- Slot id in SIM pin/puk unlock view -->
     <string name="kg_slot_name">Slot <xliff:g id="number">%d</xliff:g>: New Sim Card\u0020 </string>
 
+<<<<<<< HEAD
     <!-- Instructions telling the user remaining times when enter SIM PIN view.  -->
     <plurals name="kg_password_default_pin_message">
         <item quantity="one">Enter SIM PIN, you have <xliff:g id="number">%d</xliff:g> remaining attempt before you must contact your carrier to unlock your device.</item>
@@ -469,7 +470,9 @@
         <item quantity="one">SIM is now disabled. Enter PUK code to continue. You have <xliff:g id="number">%d</xliff:g> remaining attempt before SIM becomes permanently unusable. Contact carrier for details.</item>
         <item quantity="other">SIM is now disabled. Enter PUK code to continue. You have <xliff:g id="number">%d</xliff:g> remaining attempts before SIM becomes permanently unusable. Contact carrier for details.</item>
     </plurals>
-
+=======
     <!-- Content description of the switch input method button for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_ime_switch_button" msgid="5032926134740456424">Switch input method button.</string>
+
+>>>>>>> a894f6ee3a95ca584af89365a003fe94939618c5
 </resources>
