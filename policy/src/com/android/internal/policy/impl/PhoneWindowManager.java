@@ -166,10 +166,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static final boolean ENABLE_CAR_DOCK_HOME_CAPTURE = true;
     static final boolean ENABLE_DESK_DOCK_HOME_CAPTURE = false;
 
-    // QuickBoot time settings
-    static final int DEFAULT_LONG_PRESS_POWERON_TIME = 500;
-    static final int QUICKBOOT_LAUNCH_TIMEOUT = 2000;
-
     static final int SHORT_PRESS_POWER_NOTHING = 0;
     static final int SHORT_PRESS_POWER_GO_TO_SLEEP = 1;
     static final int SHORT_PRESS_POWER_REALLY_GO_TO_SLEEP = 2;
@@ -252,18 +248,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             .build();
 
     /**
-     * Broadcast Action: WiFi Display video is enabled or disabled
-     *
-     * <p>The intent will have the following extra values:
-     * <ul>
-     *   <li><em>state</em> - 0 for disabled, 1 for enabled. </li>
-     * </ul>
-     */
-
-    private static final String ACTION_WIFI_DISPLAY_VIDEO =
-            "org.codeaurora.intent.action.WIFI_DISPLAY_VIDEO";
-
-    /**
      * Keyguard stuff
      */
     private WindowState mKeyguardScrim;
@@ -304,7 +288,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      * where the window manager is calling in with its own lock held.)
      */
     private final Object mLock = new Object();
-    private final Object mQuickBootLock = new Object();
 
     Context mContext;
     IWindowManager mWindowManager;
@@ -457,7 +440,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mHasAppSwitchKey;
     boolean mBackKillPending;
 
-    int mLongPressPoweronTime = DEFAULT_LONG_PRESS_POWERON_TIME;
     // The last window we were told about in focusChanged.
     WindowState mFocusedWindow;
     IApplicationToken mFocusedApp;
@@ -626,9 +608,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mOverscanRight = 0;
     int mOverscanBottom = 0;
 
-    // Panel Orientation default portrait
-    int mPanelOrientation = Surface.ROTATION_0;
-
     // What we do when the user long presses on home
     private int mLongPressOnHomeBehavior;
 
@@ -679,7 +658,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     ShortcutManager mShortcutManager;
     PowerManager.WakeLock mBroadcastWakeLock;
-    PowerManager.WakeLock mQuickBootWakeLock;
     PowerManager.WakeLock mPowerKeyWakeLock;
     boolean mHavePendingMediaKeyRepeatWithWakeLock;
 
@@ -743,8 +721,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int MSG_DISPATCH_SHOW_GLOBAL_ACTIONS = 10;
     private static final int MSG_HIDE_BOOT_MESSAGE = 11;
     private static final int MSG_LAUNCH_VOICE_ASSIST_WITH_WAKE_LOCK = 12;
-    boolean mWifiDisplayConnected = false;
-    int     mWifiDisplayCustomRotation = -1;
     private static final int MSG_POWER_DELAYED_PRESS = 13;
     private static final int MSG_POWER_LONG_PRESS = 14;
     private static final int MSG_DISPATCH_VOLKEY_WITH_WAKE_LOCK = 15;
@@ -1611,10 +1587,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mPowerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
         mBroadcastWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "PhoneWindowManager.mBroadcastWakeLock");
-        mQuickBootWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                "PhoneWindowManager.mQuickBootWakeLock");
-        mLongPressPoweronTime = SystemProperties.getInt("ro.quickboot.press_duration",
-                DEFAULT_LONG_PRESS_POWERON_TIME);
         mPowerKeyWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "PhoneWindowManager.mPowerKeyWakeLock");
         mEnableShiftMenuBugReports = "1".equals(SystemProperties.get("ro.debuggable"));
@@ -1748,13 +1720,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mWindowManagerFuncs.registerPointerEventListener(mSystemGestures);
 
         mVibrator = (Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE);
-
-        // register for WIFI Display intents
-        IntentFilter wifiDisplayFilter = new IntentFilter(ACTION_WIFI_DISPLAY_VIDEO);
-
-        Intent wifidisplayIntent = context.registerReceiver(
-                                      mWifiDisplayReceiver, wifiDisplayFilter);
-
         mLongPressVibePattern = getLongIntArray(mContext.getResources(),
                 com.android.internal.R.array.config_longPressVibePattern);
         mVirtualKeyVibePattern = getLongIntArray(mContext.getResources(),
@@ -1951,7 +1916,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
         mDisplay = display;
-        mPanelOrientation = SystemProperties.getInt("persist.panel.orientation", 0) / 90;
 
         final Resources res = mContext.getResources();
         int shortSize, longSize;
@@ -3109,20 +3073,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     && mVolumeUpKeyConsumedByScreenrecordChord) {
                 if (!down) {
                     mVolumeUpKeyConsumedByScreenrecordChord = false;
-                }
-                return -1;
-            }
-            if (mVolumeUpKeyTriggered && !mPowerKeyTriggered) {
-                final long now = SystemClock.uptimeMillis();
-                final long timeoutTime = mVolumeUpKeyTime + SCREENSHOT_CHORD_DEBOUNCE_DELAY_MILLIS;
-                if (now < timeoutTime) {
-                    return timeoutTime - now;
-                }
-            }
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP
-                    && mVolumeUpKeyConsumedByScreenshotChord) {
-                if (!down) {
-                    mVolumeUpKeyConsumedByScreenshotChord = false;
                 }
                 return -1;
             }
@@ -5514,21 +5464,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int keyCode = event.getKeyCode();
         final int scanCode = event.getScanCode();
 
-        if (SystemProperties.getInt("sys.quickboot.enable", 0) == 1) {
-
-            if (keyCode == KeyEvent.KEYCODE_POWER && !interactive) {
-                if(down){
-                    acquireQuickBootWakeLock();
-                    mHandler.postDelayed(mQuickBootPowerLongPress, mLongPressPoweronTime);
-                } else {
-                    releaseQuickBootWakeLock();
-                    mHandler.removeCallbacks(mQuickBootPowerLongPress);
-                }
-            }
-            // ignore this event
-            return 0;
-        }
-
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 
         // If screen is off then we treat the case where the keyguard is open but hidden
@@ -5899,7 +5834,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
             case KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK:
             case KeyEvent.KEYCODE_CAMERA:
-            case KeyEvent.KEYCODE_FOCUS:
                 return false;
         }
         return true;
@@ -6096,29 +6030,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
-    BroadcastReceiver mWifiDisplayReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-            if (action.equals(ACTION_WIFI_DISPLAY_VIDEO)) {
-                int state = intent.getIntExtra("state", 0);
-                if(state == 1) {
-                    mWifiDisplayConnected = true;
-                } else {
-                    mWifiDisplayConnected = false;
-                }
-                mWifiDisplayCustomRotation =
-                        intent.getIntExtra("wfd_UIBC_rot", -1);
-                updateRotation(true);
-            }
-        }
-    };
-
-    private void disableQbCharger() {
-        if (SystemProperties.getInt("sys.quickboot.enable", 0) == 1) {
-            SystemProperties.set("sys.qbcharger.enable", "false");
-        }
-    }
-
     // Called on the PowerManager's Notifier thread.
     @Override
     public void goingToSleep(int why) {
@@ -6158,9 +6069,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     public void wakingUp() {
         EventLog.writeEvent(70000, 1);
         if (DEBUG_WAKEUP) Slog.i(TAG, "Waking up...");
-
-        // To disable qbcharger process when screen turning on
-        disableQbCharger();
 
         // Since goToSleep performs these functions synchronously, we must
         // do the same here.  We cannot post this work to a handler because
@@ -6428,7 +6336,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         if (mForceDefaultOrientation) {
-            return mPanelOrientation;
+            return Surface.ROTATION_0;
         }
 
         synchronized (mLock) {
@@ -6460,13 +6368,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // enable 180 degree rotation while docked.
                 preferredRotation = mDeskDockEnablesAccelerometer
                         ? sensorRotation : mDeskDockRotation;
-            } else if ((mHdmiPlugged || mWifiDisplayConnected) && mDemoHdmiRotationLock) {
+            } else if (mHdmiPlugged && mDemoHdmiRotationLock) {
                 // Ignore sensor when plugged into HDMI when demo HDMI rotation lock enabled.
                 // Note that the dock orientation overrides the HDMI orientation.
                 preferredRotation = mDemoHdmiRotation;
-            } else if ( mWifiDisplayConnected && (mWifiDisplayCustomRotation > -1)) {
-                // Ignore sensor when WFD is active and UIBC rotation is enabled
-                preferredRotation = mWifiDisplayCustomRotation;
             } else if (mHdmiPlugged && mDockMode == Intent.EXTRA_DOCK_STATE_UNDOCKED
                     && mUndockedHdmiRotation >= 0) {
                 // Ignore sensor when plugged into HDMI and an undocked orientation has
@@ -6595,13 +6500,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         return lastRotation;
                     }
                     return mPortraitRotation;
+
                 default:
                     // For USER, UNSPECIFIED, NOSENSOR, SENSOR and FULL_SENSOR,
                     // just return the preferred orientation we already calculated.
                     if (preferredRotation >= 0) {
                         return preferredRotation;
                     }
-                    return mPanelOrientation;
+                    return Surface.ROTATION_0;
             }
         }
     }

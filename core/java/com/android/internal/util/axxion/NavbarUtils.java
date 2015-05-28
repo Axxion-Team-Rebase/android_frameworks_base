@@ -129,7 +129,7 @@ public class NavbarUtils {
 			}
         } else {  // This must be an app 
             try {
-                return mContext.getPackageManager().getActivityIcon(Intent.parseUri(uri, 0));
+                return context.getPackageManager().getActivityIcon(Intent.parseUri(uri, 0));
             } catch (NameNotFoundException e) {
             } catch (URISyntaxException e) {
             }

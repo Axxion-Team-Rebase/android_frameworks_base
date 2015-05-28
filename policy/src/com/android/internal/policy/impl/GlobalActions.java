@@ -115,7 +115,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private static final String GLOBAL_ACTION_KEY_USERS = "users";
     private static final String GLOBAL_ACTION_KEY_SETTINGS = "settings";
     private static final String GLOBAL_ACTION_KEY_LOCKDOWN = "lockdown";
-    private static final String GLOBAL_ACTION_KEY_REBOOT = "reboot";
     private static final String GLOBAL_ACTION_KEY_REBOOT_RECOVERY = "reboot_recovery";
     private static final String GLOBAL_ACTION_KEY_REBOOT_BOOTLOADER = "reboot_bootloader";
 
@@ -411,13 +410,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
         @Override
         public void onPress() {
-            final boolean quickbootEnabled = Settings.System.getInt(
-                    mContext.getContentResolver(), "enable_quickboot", 0) == 1;
-            // go to quickboot mode if enabled
-            if (quickbootEnabled) {
-                startQuickBoot();
-                return;
-            }
             // shutdown by making sure radio and power are handled accordingly.
             mWindowManagerFuncs.shutdown(false /* confirm */);
         }
