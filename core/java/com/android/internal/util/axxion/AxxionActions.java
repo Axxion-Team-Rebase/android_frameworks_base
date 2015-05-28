@@ -137,7 +137,7 @@ public class AxxionActions {
                 mContext.startActivity(intentVoice);
                 return true;
 
-            case ACTION_POWER:
+            case ACTION_SLEEP:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_POWER, STANDARD_FLAGS);
                 return true;
 

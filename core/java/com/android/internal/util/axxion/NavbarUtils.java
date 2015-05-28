@@ -98,7 +98,7 @@ public class NavbarUtils {
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_assist_land");
 				case ACTION_VOICEASSIST:
 					return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_voiceassist_land");
-				case ACTION_POWER:
+				case ACTION_SLEEP:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_power_land");
         		case ACTION_TORCH:
 				    return getSystemUIDrawable(context, "com.android.systemui:drawable/ic_sysbar_torch_land");
