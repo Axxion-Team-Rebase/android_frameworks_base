@@ -2256,7 +2256,8 @@
 
   <!-- cpu boost for overscroller fling -->
   <java-symbol type="bool" name="config_enableCpuBoostForOverScrollerFling" />
-
+  <java-symbol type="integer" name="launchboost_cpu_6_7_offline_param" />
+	
   <!-- Data Connectivity Error Configurations -->
   <java-symbol type="bool" name="config_reject_ggsn_perm_failure" />
   <java-symbol type="bool" name="config_protocol_errors_perm_failure" />
@@ -2272,4 +2273,8 @@
   <java-symbol type="integer" name="launchboost_cpuboost_param" />
   <java-symbol type="integer" name="launchboost_pcdisbl_param" />
   <java-symbol type="integer" name="launchboost_ksmboost_param" />
+  
+  <java-symbol type="bool" name="config_fetch_apn_from_omh_card" />
+  <!-- Configuration to play sms ringtone during MO/MT call -->
+  <java-symbol type="bool" name="config_sms_ringtone_incall" />
 </resources>
