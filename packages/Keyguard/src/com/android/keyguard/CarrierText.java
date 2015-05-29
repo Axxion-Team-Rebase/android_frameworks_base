@@ -47,8 +47,7 @@ public class CarrierText extends TextView {
     private LockPatternUtils mLockPatternUtils;
     private KeyguardUpdateMonitor mKeyguardUpdateMonitor;
 
-    private KeyguardUpdateMonitorCallback mCallback = new KeyguardUpdateMonitorCallback(new KeyguardUpdateMonitorCallback() {
-        @Override
+    private KeyguardUpdateMonitorCallback mCallback = new KeyguardUpdateMonitorCallback() {
         public void onRefreshCarrierInfo() {
             updateCarrierText();
         }
@@ -60,7 +59,7 @@ public class CarrierText extends TextView {
         public void onScreenTurnedOn() {
             setSelected(true);
         }
-    });
+    };
     /**
      * The status of this lock screen. Primarily used for widgets on LockScreen.
      */
