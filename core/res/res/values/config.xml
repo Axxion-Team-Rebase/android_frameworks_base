@@ -2253,7 +2253,4 @@
     
     <!-- If this is true, key chords can be used to take a screen record on the device. -->
     <bool name="config_enableScreenrecordChord">true</bool>
-    
-    <!-- omni additions -->
-    <bool name="config_offscreenGestureSupport">false</bool>
 </resources>
