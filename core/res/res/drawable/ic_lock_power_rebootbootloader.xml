@@ -17,7 +17,7 @@
      THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
      WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
-     ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+     ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
      BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
      CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
      SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
@@ -26,7 +26,12 @@
      OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
      IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
-<pointer-icon xmlns:android="http://schemas.android.com/apk/res/android"
-    android:bitmap="@drawable/pointer_stylus_hover"
-    android:hotSpotX="5dp"
-    android:hotSpotY="5dp" />
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true"
+        android:drawable="@drawable/ic_lock_power_rebootbootloader_alpha"/>
+    <item>
+        <bitmap
+            android:src="@drawable/ic_lock_power_rebootbootloader_alpha"
+            android:tint="?attr/colorControlNormal" />
+    </item>
+</selector>

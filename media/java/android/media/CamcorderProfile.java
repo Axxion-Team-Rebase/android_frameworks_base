@@ -116,14 +116,9 @@ public class CamcorderProfile
     public static final int QUALITY_WQVGA = 11;
 
     /** @hide
-     * Quality level corresponding to the FWVGA resolution.
-     */
-    public static final int QUALITY_FWVGA = 12;
-
-    /** @hide
      * Quality level corresponding to 4K DCI resolution
      */
-    public static final int QUALITY_4kDCI = 13;
+    public static final int QUALITY_4kDCI = 12;
 
     // Start and end of quality list
     private static final int QUALITY_LIST_START = QUALITY_LOW;

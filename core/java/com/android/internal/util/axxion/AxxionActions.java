@@ -117,7 +117,7 @@ public class AxxionActions {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (TaskUtils.killActiveTask(mContext,mCurrentUserId)) {
+                        if (TaskUtils.killActiveTask(mContext)) {
                             Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -137,7 +137,7 @@ public class AxxionActions {
                 mContext.startActivity(intentVoice);
                 return true;
 
-            case ACTION_POWER:
+            case ACTION_SLEEP:
                 InputManager.triggerVirtualKeypress(KeyEvent.KEYCODE_POWER, STANDARD_FLAGS);
                 return true;
 
@@ -148,7 +148,7 @@ public class AxxionActions {
                 return true;
 
             case ACTION_LAST_APP:
-                TaskUtils.toggleLastApp(mContext, mCurrentUserId);
+                TaskUtils.toggleLastApp(mContext);
                 return true;
 
             case ACTION_NOTIFICATIONS:

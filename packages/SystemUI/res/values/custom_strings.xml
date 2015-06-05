@@ -45,11 +45,6 @@
     <!-- no interuptions except alarms -->
     <string name="zen_no_interruptions_but_alarm">No interruptions. Except alarms.</string>
 
-    <!-- Data Tile -->
-    <string name="quick_settings_mobile_data_label">Mobile data</string>
-    <string name="accessibility_quick_settings_data_on">Mobile data on</string>
-    <string name="accessibility_quick_settings_data_off">Mobile data off</string>
-
     <!-- Custom Tiles -->
     <string name="accessibility_quick_settings_location_battery_saving">Location reporting: battery saving mode.</string>
     <string name="accessibility_quick_settings_location_gps_only">Location reporting: sensors only mode.</string>

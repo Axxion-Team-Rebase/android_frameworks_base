@@ -16,18 +16,6 @@
 ** limitations under the License.
 */
 
-<<<<<<< HEAD:core/java/android/bluetooth/BluetoothHidDeviceAppSdpSettings.aidl
 package android.bluetooth;
-=======
-<!-- These resources are around just to allow their values to be customized
-     for different hardware and product builds. -->
-<resources>
-    <!-- Doze: shake accelerometer threshold minimum is 2 and maximum is 10-->
-    <integer name="doze_shake_accelerometer_threshold">10</integer>
-
-    <!-- Whether to enable data switch or not -->
-    <bool name="config_enableDataSwitch">true</bool>
-</resources>
->>>>>>> f6b53a5... Customizeable QS Tiles (1/2) Squashed:packages/SystemUI/res/values/custom_config.xml
 
 parcelable BluetoothHidDeviceAppSdpSettings;

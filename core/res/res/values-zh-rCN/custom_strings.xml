@@ -19,7 +19,6 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="global_action_reboot">重启</string>
   <string name="global_action_reboot_more">重启\u2026</string>
   <string name="global_action_reboot_sub">系统</string>
   <string name="global_action_reboot_recovery">恢复模式</string>

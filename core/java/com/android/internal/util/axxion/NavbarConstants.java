@@ -95,7 +95,7 @@ public class NavbarConstants {
         ACTION_RING_VIB_SILENT("**ring_vib_silent**", com.android.internal.R.string.action_silent_vib,    "com.android.systemui:drawable/ic_sysbar_silent_vib"),
         ACTION_RING_VIB       ("**ring_vib**",        com.android.internal.R.string.action_vib,           "com.android.systemui:drawable/ic_sysbar_vib"),
         ACTION_SLEEP       	  ("**sleep**",           com.android.internal.R.string.action_sleep,         "com.android.systemui:drawable/ic_sysbar_sleep"),
-		ACTION_POWERMENU	  ("**powermenu**", 	  com.android.internal.R.string.action_powermenu,	  "com.android.systemui:drawable/ic_sysbar_powermenu")
+		ACTION_POWERMENU	  ("**powermenu**", 	  com.android.internal.R.string.action_powermenu,	  "com.android.systemui:drawable/ic_sysbar_powermenu"),
         /* unassignable actions */
         ACTION_LAYOUT_LEFT    ("**layout_left**",     com.android.internal.R.string.action_null,          "com.android.systemui:drawable/ic_sysbar_layout_left"),
         ACTION_LAYOUT_RIGHT   ("**layout_right**",    com.android.internal.R.string.action_null,          "com.android.systemui:drawable/ic_sysbar_layout_right"),

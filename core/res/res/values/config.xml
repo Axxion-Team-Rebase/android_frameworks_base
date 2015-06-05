@@ -2141,7 +2141,8 @@
         <item>Trying to delete contacts</item>
         <item>Trying to delete call log</item>
         <item>Trying to turn on mobile data</item>
-
+        <item>@string/app_ops_read_other_accounts</item>
+        <item>@string/app_ops_read_phone_info</item>
     </string-array>
 
     <!-- Configuartion to set zen mode when silent mode is on -->
