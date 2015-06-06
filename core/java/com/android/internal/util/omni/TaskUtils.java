@@ -139,8 +139,6 @@ public class TaskUtils {
 
         final ActivityManager am = (ActivityManager) mContext
             .getSystemService(Context.ACTIVITY_SERVICE);
-
-        am.removeTask(mId, ActivityManager.REMOVE_TASK_KILL_PROCESS);
     }
 
     public static void movePackageToFront(int mId, Context context) {

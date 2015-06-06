@@ -53,6 +53,8 @@ public class BassBoost extends AudioEffect {
      * {@link android.media.audiofx.BassBoost.OnParameterChangeListener}
      */
     public static final int PARAM_STRENGTH = 1;
+	
+	public static final int PARAM_CENTER_FREQUENCY = 2;
 
     /**
      * Indicates if strength parameter is supported by the bass boost engine
