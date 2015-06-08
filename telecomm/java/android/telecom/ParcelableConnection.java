@@ -34,7 +34,8 @@ import java.util.List;
 public final class ParcelableConnection implements Parcelable {
     private final PhoneAccountHandle mPhoneAccount;
     private final int mState;
-    private final int mConnectionCapabilities;
+    private int mConnectionCapabilities = 0;
+    private int mCapabilities = 0;
     private final int mProperties;
     private final Uri mAddress;
     private final int mAddressPresentation;
@@ -131,10 +132,6 @@ public final class ParcelableConnection implements Parcelable {
     // Bit mask of actions a call supports, values are defined in {@link CallCapabilities}.
     public int getConnectionCapabilities() {
         return mConnectionCapabilities;
-    }
-
-    public int getProperties() {
-        return mProperties;
     }
 
     public int getProperties() {
