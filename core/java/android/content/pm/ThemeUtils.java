@@ -120,8 +120,7 @@ public class ThemeUtils {
     // Actions in manifests which identify legacy icon packs
     public static final String[] sSupportedActions = new String[] {
             "org.adw.launcher.THEMES",
-            "com.gau.go.launcherex.theme",
-            "com.novalauncher.THEME"
+            "com.gau.go.launcherex.theme"
     };
 
     // Categories in manifests which identify legacy icon packs
