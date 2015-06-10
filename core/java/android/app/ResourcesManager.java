@@ -562,7 +562,7 @@ public class ResourcesManager {
             return false;
         }
 
-        String themePackageName = piTheme.packageName;
+        String themePackageName = basePackageName;
         String themePath = piTheme.applicationInfo.publicSourceDir;
         if (!piTarget.isThemeApk && piTheme.mOverlayTargets.contains(basePackageName)) {
             String targetPackagePath = piTarget.applicationInfo.sourceDir;
@@ -575,7 +575,7 @@ public class ResourcesManager {
                     targetPackagePath, prefixPath);
 
             if (cookie != 0) {
-                assets.setThemePackageName(themePackageName);
+                assets.setThemePackageName(basePackageName);
                 assets.addThemeCookie(cookie);
             }
         }
