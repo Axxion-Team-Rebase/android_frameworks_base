@@ -581,8 +581,7 @@ public class ResourcesManager {
             }
         }
 
-        if (!piTarget.isThemeApk && !"android".equals(basePackageName) &&
-                piTheme.mOverlayTargets.contains("android")) {
+        if (!piTarget.isThemeApk && piTheme.mOverlayTargets.contains("android")) {
             String resCachePath= ThemeUtils.getTargetCacheDir(piAndroid.packageName, piTheme);
             String prefixPath = ThemeUtils.getOverlayPathToTarget(piAndroid.packageName);
             String targetPackagePath = piAndroid.applicationInfo.publicSourceDir;
