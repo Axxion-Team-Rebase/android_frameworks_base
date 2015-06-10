@@ -97,7 +97,6 @@ public class MockContext extends Context {
         throw new UnsupportedOperationException();
     }
 
-    /** @hide */
     @Override
     public void recreateTheme() {
         throw new UnsupportedOperationException();
