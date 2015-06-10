@@ -24,8 +24,6 @@ public class ComposedIconInfo implements Parcelable {
     public int[] iconBacks;
     public float iconScale;
     public float iconRotation;
-    // value used to provide some randomization to the angle of rotation
-    public float iconRotationVariance;
     public float iconTranslationX;
     public float iconTranslationY;
     public int iconDensity;
@@ -49,7 +47,6 @@ public class ComposedIconInfo implements Parcelable {
     private ComposedIconInfo(Parcel source) {
         iconScale = source.readFloat();
         iconRotation = source.readFloat();
-        iconRotationVariance = source.readFloat();
         iconTranslationX = source.readFloat();
         iconTranslationY = source.readFloat();
         iconDensity = source.readInt();
@@ -90,7 +87,6 @@ public class ComposedIconInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeFloat(iconScale);
         dest.writeFloat(iconRotation);
-        dest.writeFloat(iconRotationVariance);
         dest.writeFloat(iconTranslationX);
         dest.writeFloat(iconTranslationY);
         dest.writeInt(iconDensity);
