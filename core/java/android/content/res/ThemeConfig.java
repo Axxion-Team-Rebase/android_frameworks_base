@@ -31,7 +31,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -104,10 +103,6 @@ public class ThemeConfig implements Cloneable, Parcelable, Comparable<ThemeConfi
     public String getFontPkgNameForApp(String appPkgName) {
         AppTheme theme = getThemeFor(appPkgName);
         return theme.mFontPkgName;
-    }
-
-    public Map<String, AppTheme> getAppThemes() {
-        return Collections.unmodifiableMap(mThemes);
     }
 
     private AppTheme getThemeFor(String pkgName) {
@@ -434,15 +429,8 @@ public class ThemeConfig implements Cloneable, Parcelable, Comparable<ThemeConfi
                 String overlay = mOverlays.get(appPkgName);
                 String font = mFonts.get(appPkgName);
 
-                // Remove app theme if all items are null
-                if (overlay == null && icon == null && font == null) {
-                    if (appThemes.containsKey(appPkgName)) {
-                        appThemes.remove(appPkgName);
-                    }
-                } else {
-                    AppTheme appTheme = new AppTheme(overlay, icon, font);
-                    appThemes.put(appPkgName, appTheme);
-                }
+                AppTheme appTheme = new AppTheme(overlay, icon, font);
+                appThemes.put(appPkgName, appTheme);
             }
             ThemeConfig themeConfig = new ThemeConfig(appThemes);
             themeConfig.mThemeChangeTimestamp = mThemeChangeTimestamp;
