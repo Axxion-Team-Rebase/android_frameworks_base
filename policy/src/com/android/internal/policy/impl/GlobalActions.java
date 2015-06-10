@@ -1240,12 +1240,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
     };
 
-    private BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            mUiContext = null;
-        }
-    };
-
     PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
         public void onServiceStateChanged(ServiceState serviceState) {
