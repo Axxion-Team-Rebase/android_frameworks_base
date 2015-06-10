@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2010, T-Mobile USA, Inc.
- * Copyright (C) 2015 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.server;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,14 +28,10 @@ import android.provider.ThemesContract;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.android.internal.R;
-
-public class AppsFailureReceiver extends BroadcastReceiver {
+public class AppsLaunchFailureReceiver extends BroadcastReceiver {
 
     private static final int FAILURES_THRESHOLD = 3;
     private static final int EXPIRATION_TIME_IN_MILLISECONDS = 30000; // 30 seconds
-
-    private static final int THEME_RESET_NOTIFICATION_ID = 0x4641494C;
 
     private int mFailuresCount = 0;
     private long mStartTime = 0;
@@ -50,9 +44,8 @@ public class AppsFailureReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.equals(Intent.ACTION_APP_FAILURE)) {
+        if (action.equals(Intent.ACTION_APP_LAUNCH_FAILURE)) {
             long currentTime = SystemClock.uptimeMillis();
-            String pkgName = intent.getStringExtra("package");
             if (currentTime - mStartTime > EXPIRATION_TIME_IN_MILLISECONDS) {
                 // reset both the count and the timer
                 mStartTime = currentTime;
@@ -77,10 +70,9 @@ public class AppsFailureReceiver extends BroadcastReceiver {
                     components.add(ThemesContract.ThemesColumns.MODIFIES_STATUS_BAR);
                     components.add(ThemesContract.ThemesColumns.MODIFIES_NAVIGATION_BAR);
                     tm.requestThemeChange(ThemeConfig.SYSTEM_DEFAULT, components);
-                    postThemeResetNotification(context);
                 }
             }
-        } else if (action.equals(Intent.ACTION_APP_FAILURE_RESET)
+        } else if (action.equals(Intent.ACTION_APP_LAUNCH_FAILURE_RESET)
                 || action.equals(ThemeUtils.ACTION_THEME_CHANGED)) {
             mFailuresCount = 0;
             mStartTime = SystemClock.uptimeMillis();
@@ -91,26 +83,4 @@ public class AppsFailureReceiver extends BroadcastReceiver {
         }
     }
 
-    /**
-     * Posts a notification to let the user know their theme was reset
-     * @param context
-     */
-    private void postThemeResetNotification(Context context) {
-        NotificationManager nm =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        String title = context.getString(R.string.theme_reset_notification_title);
-        String body = context.getString(R.string.theme_reset_notification_body);
-        Notification notice = new Notification.Builder(context)
-                .setAutoCancel(true)
-                .setOngoing(false)
-                .setContentTitle(title)
-                .setContentText(body)
-                .setStyle(new Notification.BigTextStyle().bigText(body))
-                .setSmallIcon(android.R.drawable.stat_notify_error)
-                .setWhen(System.currentTimeMillis())
-                .setCategory(Notification.CATEGORY_SYSTEM)
-                .setPriority(Notification.PRIORITY_MAX)
-                .build();
-        nm.notify(THEME_RESET_NOTIFICATION_ID, notice);
-    }
 }
