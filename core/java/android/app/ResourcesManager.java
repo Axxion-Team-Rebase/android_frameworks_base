@@ -171,9 +171,8 @@ public class ResourcesManager {
             Context context) {
         final float scale = compatInfo.applicationScale;
         final boolean isThemeable = compatInfo.isThemeable;
-        final ThemeConfig themeConfig = getThemeConfig();
         ResourcesKey key = new ResourcesKey(resDir, displayId, overrideConfiguration, scale,
-                isThemeable, themeConfig, token);
+                isThemeable, token);
         Resources r;
         synchronized (this) {
             // Resources is app scale dependent.
@@ -724,13 +723,5 @@ public class ResourcesManager {
         }
         assets.getThemeCookies().clear();
         assets.setThemePackageName(null);
-    }
-
-    private ThemeConfig getThemeConfig() {
-        Configuration config = getConfiguration();
-        if (config != null) {
-            return config.themeConfig;
-        }
-        return null;
     }
 }
