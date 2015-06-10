@@ -1152,10 +1152,6 @@ public class PackageManagerService extends IPackageManager.Stub {
                                             pkgList,uidArray, null);
                                 }
                             }
-                            // if this was a theme, send it off to the theme service for processing
-                            if(res.pkg.mIsThemeApk || res.pkg.mIsLegacyIconPackApk) {
-                                processThemeResourcesInThemeService(res.pkg.packageName);
-                            }
                             if (res.removedInfo.args != null) {
                                 // Remove the replaced package's older resources safely now
                                 deleteOld = true;
@@ -6717,6 +6713,15 @@ public class PackageManagerService extends IPackageManager.Stub {
                         throw new PackageManagerException(failReason,
                                 "Unable to process theme " + pkgName, failedException);
                     }
+                }
+            }
+
+            if (!isBootScan && (pkg.mIsThemeApk)) {
+                // Pass this off to the ThemeService for processing
+                ThemeManager tm =
+                        (ThemeManager) mContext.getSystemService(Context.THEME_SERVICE);
+                if (tm != null) {
+                    tm.processThemeResources(pkg.packageName);
                 }
             }
 
@@ -14505,14 +14510,6 @@ public class PackageManagerService extends IPackageManager.Stub {
         }
 
         return 0;
-    }
-
-    private void processThemeResourcesInThemeService(String pkgName) {
-        ThemeManager tm =
-                (ThemeManager) mContext.getSystemService(Context.THEME_SERVICE);
-        if (tm != null) {
-            tm.processThemeResources(pkgName);
-        }
     }
 
     /**

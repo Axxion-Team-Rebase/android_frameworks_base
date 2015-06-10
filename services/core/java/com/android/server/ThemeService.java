@@ -188,13 +188,13 @@ public class ThemeService extends IThemeService.Stub {
                         } catch (PackageManager.NameNotFoundException e) {
                             name = null;
                         }
-
-                        int result = mPM.processThemeResources(pkgName);
-                        if (result < 0) {
-                            postFailedThemeInstallNotification(name != null ? name : pkgName);
+                        if (name != null) {
+                            int result = mPM.processThemeResources(pkgName);
+                            if (result < 0) {
+                                postFailedThemeInstallNotification(name);
+                            }
+                            sendThemeResourcesCachedBroadcast(pkgName, result);
                         }
-                        sendThemeResourcesCachedBroadcast(pkgName, result);
-
                         synchronized (mThemesToProcessQueue) {
                             mThemesToProcessQueue.remove(0);
                             if (mThemesToProcessQueue.size() > 0 &&
