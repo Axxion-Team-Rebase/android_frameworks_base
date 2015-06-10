@@ -3713,9 +3713,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         // detect theme change.
         ThemeConfig newTheme = newConfig != null ? newConfig.themeConfig : null;
-        final boolean updateStatusBar = shouldUpdateStatusbar(mCurrentTheme, newTheme);
-        if (newTheme != null) mCurrentTheme = (ThemeConfig) newTheme.clone();
-        if (updateStatusBar) {
+        if (shouldUpdateStatusbar(mCurrentTheme, newTheme)) {
+            mCurrentTheme = (ThemeConfig)newTheme.clone();
             recreateStatusBar();
         } else {
             loadDimens();
