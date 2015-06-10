@@ -80,7 +80,7 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
     private String mMostRecentPackageName;
 
     private boolean mTouchOutside;
-
+    
     private static int sRoundedRectCornerRadius = 0;
 
     public HeadsUpNotificationView(Context context, AttributeSet attrs) {
@@ -286,10 +286,9 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
             int outlineTop = view.getPaddingTop();
 
             // Apply padding to shadow.
-            outline.setRoundRect(outlineLeft, outlineTop,
+            outline.setRect(outlineLeft, outlineTop,
                     view.getWidth() - outlineLeft - view.getPaddingRight(),
-                    view.getHeight() - outlineTop - view.getPaddingBottom(),
-                    sRoundedRectCornerRadius);
+                    view.getHeight() - outlineTop - view.getPaddingBottom());
         }
     };
 
