@@ -45,6 +45,7 @@ import android.view.ViewRootImpl;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.widget.FrameLayout;
+
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.DragDownHelper;
@@ -124,6 +125,13 @@ public class StatusBarWindowView extends FrameLayout {
                 return true;
             }
         });
+
+
+        mStackScrollLayout = (NotificationStackScrollLayout) findViewById(
+                R.id.notification_stack_scroller);
+        mNotificationPanel = (NotificationPanelView) findViewById(R.id.notification_panel);
+        mDragDownHelper = new DragDownHelper(getContext(), this, mStackScrollLayout, mService);
+        mBrightnessMirror = findViewById(R.id.brightness_mirror);
 
         // We really need to be able to animate while window animations are going on
         // so that activities may be started asynchronously from panel animations
@@ -316,20 +324,6 @@ public class StatusBarWindowView extends FrameLayout {
             mDoubleTapToSleepEnabled = Settings.System.getInt(
                     resolver, Settings.System.DOUBLE_TAP_SLEEP_GESTURE, 1) == 1;
         }
-    }
-
-    public void addContent(View content) {
-        addView(content);
-        mStackScrollLayout = (NotificationStackScrollLayout) content.findViewById(
-                R.id.notification_stack_scroller);
-        mNotificationPanel = (NotificationPanelView) content.findViewById(R.id.notification_panel);
-        mDragDownHelper = new DragDownHelper(getContext(), this, mStackScrollLayout, mService);
-        mBrightnessMirror = content.findViewById(R.id.brightness_mirror);
-
-    }
-
-    public void removeContent(View content) {
-        removeView(content);
     }
 }
 
