@@ -974,14 +974,12 @@ public final class SystemServer {
                 mSystemServiceManager.startService(TvInputManagerService.class);
             }
 
-            if (!disableNonCoreServices && !mOnlyCore) {
-                try {
-                    Slog.i(TAG, "Theme Service");
-                    themeService = new ThemeService(context);
-                    ServiceManager.addService(Context.THEME_SERVICE, themeService);
-                } catch (Throwable e) {
-                    reportWtf("starting Theme Service", e);
-                }
+            try {
+                Slog.i(TAG, "Theme Service");
+                themeService = new ThemeService(context);
+                ServiceManager.addService(Context.THEME_SERVICE, themeService);
+            } catch (Throwable e) {
+                reportWtf("starting Theme Service", e);
             }
 
             if (!disableNonCoreServices) {
