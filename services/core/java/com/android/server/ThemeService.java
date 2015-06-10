@@ -126,7 +126,6 @@ public class ThemeService extends IThemeService.Stub {
     private class ThemeWorkerHandler extends Handler {
         private static final int MESSAGE_CHANGE_THEME = 1;
         private static final int MESSAGE_APPLY_DEFAULT_THEME = 2;
-        private static final int MESSAGE_REBUILD_RESOURCE_CACHE = 3;
 
         public ThemeWorkerHandler(Looper looper) {
             super(looper);
@@ -141,9 +140,6 @@ public class ThemeService extends IThemeService.Stub {
                     break;
                 case MESSAGE_APPLY_DEFAULT_THEME:
                     doApplyDefaultTheme();
-                    break;
-                case MESSAGE_REBUILD_RESOURCE_CACHE:
-                    doRebuildResourceCache();
                     break;
                 default:
                     Log.w(TAG, "Unknown message " + msg.what);
@@ -471,11 +467,6 @@ public class ThemeService extends IThemeService.Stub {
                 Log.w(TAG, "Unable to set default theme", e);
             }
         }
-    }
-
-    private void doRebuildResourceCache() {
-        FileUtils.deleteContents(new File(ThemeUtils.RESOURCE_CACHE_DIR));
-        processInstalledThemes();
     }
 
     private void updateProvider(Map<String, String> componentMap) {
@@ -1041,13 +1032,6 @@ public class ThemeService extends IThemeService.Stub {
         mContext.enforceCallingOrSelfPermission(
                 Manifest.permission.ACCESS_THEME_MANAGER, null);
         mProcessingListeners.unregister(listener);
-    }
-
-    @Override
-    public void rebuildResourceCache() throws RemoteException {
-        mContext.enforceCallingOrSelfPermission(
-                Manifest.permission.ACCESS_THEME_MANAGER, null);
-        mHandler.sendEmptyMessage(ThemeWorkerHandler.MESSAGE_REBUILD_RESOURCE_CACHE);
     }
 
     private void purgeIconCache() {
