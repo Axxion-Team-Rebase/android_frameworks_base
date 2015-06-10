@@ -426,12 +426,7 @@ public class ThemeService extends IThemeService.Stub {
             incrementProgress(progressIncrement);
         }
 
-        try {
-            updateProvider(request, updateTime);
-        } catch(IllegalArgumentException e) {
-            // Safeguard against provider not being ready yet.
-            Log.e(TAG, "Not updating the theme provider since it is unavailable");
-        }
+        updateProvider(request, updateTime);
 
         if (shouldUpdateConfiguration(request)) {
             updateConfiguration(request, removePerAppTheme);
