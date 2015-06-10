@@ -1002,9 +1002,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 //});
             }
         } else {
-            if (mNetworkController == null) {
-                mNetworkController = new NetworkControllerImpl(mContext);
-            }
+            mNetworkController = new NetworkControllerImpl(mContext);
             final SignalClusterView signalCluster =
                 (SignalClusterView)mStatusBarView.findViewById(R.id.signal_cluster);
             final SignalClusterView signalClusterKeyguard =
@@ -3600,9 +3598,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         if (mMSimNetworkController != null) {
             mMSimNetworkController.clearSubsLabelView();
-            mMSimNetworkController.removeAllSignalClusters();
+            mContext.unregisterReceiver(mMSimNetworkController);
         } else if (mNetworkController != null) {
-            mNetworkController.removeAllSignalClusters();
+            mContext.unregisterReceiver(mNetworkController);
         }
 
         removeHeadsUpView();

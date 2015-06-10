@@ -307,11 +307,6 @@ public class MSimNetworkControllerImpl extends NetworkControllerImpl {
         refreshSignalCluster(cluster, phoneId);
     }
 
-    @Override
-    public void removeAllSignalClusters() {
-        mSimSignalClusters.clear();
-    }
-
     public void refreshSignalCluster(MSimSignalCluster cluster, int phoneId) {
         cluster.setWifiIndicators(
                 // only show wifi in the cluster if connected or if wifi-only
