@@ -15,7 +15,6 @@
  */
 package android.content.res;
 
-import android.content.pm.ThemeUtils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -172,12 +171,6 @@ public final class ThemeChangeRequest implements Parcelable {
 
         public Builder() {}
 
-        public Builder(ThemeConfig themeConfig) {
-            if (themeConfig != null) {
-                buildChangeRequestFromThemeConfig(themeConfig);
-            }
-        }
-
         public Builder setOverlay(String pkgName) {
             return setComponent(MODIFIES_OVERLAYS, pkgName);
         }
@@ -250,32 +243,6 @@ public final class ThemeChangeRequest implements Parcelable {
 
         public ThemeChangeRequest build() {
             return new ThemeChangeRequest(mThemeComponents, mPerAppOverlays, mRequestType);
-        }
-
-        private void buildChangeRequestFromThemeConfig(ThemeConfig themeConfig) {
-            if (themeConfig.getFontPkgName() != null) {
-                this.setFont(themeConfig.getFontPkgName());
-            }
-            if (themeConfig.getIconPackPkgName() != null) {
-                this.setIcons(themeConfig.getIconPackPkgName());
-            }
-            if (themeConfig.getOverlayPkgName() != null) {
-                this.setOverlay(themeConfig.getOverlayPkgName());
-            }
-            if (themeConfig.getOverlayForStatusBar() != null) {
-                this.setStatusBar(themeConfig.getOverlayForStatusBar());
-            }
-            if (themeConfig.getOverlayForNavBar() != null) {
-                this.setNavBar(themeConfig.getOverlayForNavBar());
-            }
-
-            // Check if there are any per-app overlays using this theme
-            final Map<String, ThemeConfig.AppTheme> themes = themeConfig.getAppThemes();
-            for (String appPkgName : themes.keySet()) {
-                if (ThemeUtils.isPerAppThemeComponent(appPkgName)) {
-                    this.setAppOverlay(appPkgName, themes.get(appPkgName).getOverlayPkgName());
-                }
-            }
         }
     }
 }
