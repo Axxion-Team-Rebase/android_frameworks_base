@@ -442,6 +442,222 @@ public class BatteryMeterView extends View implements DemoMode,
     @Override
     public boolean hasOverlappingRendering() {
         return false;
+	}
+	
+    protected class CircleBatteryMeterDrawable implements BatteryMeterDrawable {
+        private static final boolean SINGLE_DIGIT_PERCENT = false;
+        private static final boolean SHOW_100_PERCENT = false;
+
+        private static final int FULL = 96;
+
+        public static final float STROKE_WITH = 6.5f;
+
+        private boolean mDisposed;
+
+        private int     mCircleSize;    // draw size of circle
+        private RectF   mRectLeft;      // contains the precalculated rect used in drawArc(),
+                                        // derived from mCircleSize
+        private float   mTextX, mTextY; // precalculated position for drawText() to appear centered
+
+        private Paint   mTextPaint;
+        private Paint   mFrontPaint;
+        private Paint   mBackPaint;
+        private Paint   mBoltPaint;
+        private Paint   mWarningTextPaint;
+
+        private final RectF mBoltFrame = new RectF();
+
+        private final float[] mBoltPoints;
+        private final Path mBoltPath = new Path();
+
+        public CircleBatteryMeterDrawable(Resources res) {
+            super();
+            mDisposed = false;
+
+            mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            Typeface font = Typeface.create("sans-serif-condensed", Typeface.BOLD);
+            mTextPaint.setTypeface(font);
+            mTextPaint.setTextAlign(Paint.Align.CENTER);
+
+            mFrontPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mFrontPaint.setStrokeCap(Paint.Cap.BUTT);
+            mFrontPaint.setDither(true);
+            mFrontPaint.setStrokeWidth(0);
+            mFrontPaint.setStyle(Paint.Style.STROKE);
+
+            mBackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mBackPaint.setStrokeCap(Paint.Cap.BUTT);
+            mBackPaint.setDither(true);
+            mBackPaint.setStrokeWidth(0);
+            mBackPaint.setStyle(Paint.Style.STROKE);
+
+            mWarningTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            font = Typeface.create("sans-serif", Typeface.BOLD);
+            mWarningTextPaint.setTypeface(font);
+            mWarningTextPaint.setTextAlign(Paint.Align.CENTER);
+
+            mBoltPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mBoltPoints = loadBoltPoints(res);
+        }
+
+        @Override
+        public void onDraw(Canvas c, BatteryTracker tracker) {
+            if (mDisposed) return;
+
+            if (mRectLeft == null) {
+                initSizeBasedStuff();
+            }
+
+            if (mIsAnimating) {
+                updateChargeAnim(tracker);
+            } else {
+                startChargeAnim(tracker);
+            }
+            drawCircle(c, tracker, mTextX, mRectLeft);
+        }
+
+        @Override
+        public void onDispose() {
+            mHandler.removeCallbacks(mInvalidate);
+            mDisposed = true;
+        }
+
+        @Override
+        public void onSizeChanged(int w, int h, int oldw, int oldh) {
+            initSizeBasedStuff();
+        }
+
+        private float[] loadBoltPoints(Resources res) {
+            final int[] pts = res.getIntArray(R.array.batterymeter_bolt_points);
+            int maxX = 0, maxY = 0;
+            for (int i = 0; i < pts.length; i += 2) {
+                maxX = Math.max(maxX, pts[i]);
+                maxY = Math.max(maxY, pts[i + 1]);
+            }
+            final float[] ptsF = new float[pts.length];
+            for (int i = 0; i < pts.length; i += 2) {
+                ptsF[i] = (float)pts[i] / maxX;
+                ptsF[i + 1] = (float)pts[i + 1] / maxY;
+            }
+            return ptsF;
+        }
+
+        private void drawCircle(Canvas canvas, BatteryTracker tracker,
+                float textX, RectF drawRect) {
+            boolean unknownStatus = tracker.status == BatteryManager.BATTERY_STATUS_UNKNOWN;
+            int level = tracker.level;
+
+            // set the battery colors
+            mBackPaint.setColor(getColorForLevel(50, false));
+            mBackPaint.setAlpha(102);
+            mFrontPaint.setColor(tracker.plugged ? getColorForLevel(50, false) : getColorForLevel(level, false));
+            // set the text colors
+            mWarningTextPaint.setColor(getColorForLevel(10, true));
+            mTextPaint.setColor(getColorForLevel(level, true));
+            mBoltPaint.setColor(getColorForLevel(50, true));
+
+            if (mIsCircleDotted) {
+                // change mPaintStatus from solid to dashed
+                mFrontPaint.setPathEffect(
+                        new DashPathEffect(new float[]{mDotLength,mDotInterval},0));
+            } else {
+                mFrontPaint.setPathEffect(null);
+            }
+
+            Paint paint;
+
+            if (unknownStatus) {
+                paint = mBackPaint;
+                level = 100; // Draw all the circle;
+            } else {
+                paint = mFrontPaint;
+                if (tracker.status == BatteryManager.BATTERY_STATUS_FULL) {
+                    level = 100;
+                }
+            }
+
+            // draw thin gray ring first
+            canvas.drawArc(drawRect, 270, 360, false, mBackPaint);
+            // draw colored arc representing charge level
+			canvas.drawArc(drawRect, mIsAnimating ? 270 + mAnimLevel : 270, 3.6f * level, false, paint);            
+			// if chosen by options, draw percentage text in the middle
+            // always skip percentage when 100, so layout doesnt break
+            if (unknownStatus) {
+                canvas.drawText("?", textX, mTextY, mTextPaint);
+            } else if (tracker.shouldIndicateCharging()
+                    && (!mShowPercent || mChargeAnimDisabled)) {
+                // draw the bolt
+                final float bl = (int)(drawRect.left + drawRect.width() / 3.2f);
+                final float bt = (int)(drawRect.top + drawRect.height() / 4f);
+                final float br = (int)(drawRect.right - drawRect.width() / 5.2f);
+                final float bb = (int)(drawRect.bottom - drawRect.height() / 8f);
+                if (mBoltFrame.left != bl || mBoltFrame.top != bt
+                        || mBoltFrame.right != br || mBoltFrame.bottom != bb) {
+                    mBoltFrame.set(bl, bt, br, bb);
+                    mBoltPath.reset();
+                    mBoltPath.moveTo(
+                            mBoltFrame.left + mBoltPoints[0] * mBoltFrame.width(),
+                            mBoltFrame.top + mBoltPoints[1] * mBoltFrame.height());
+                    for (int i = 2; i < mBoltPoints.length; i += 2) {
+                        mBoltPath.lineTo(
+                                mBoltFrame.left + mBoltPoints[i] * mBoltFrame.width(),
+                                mBoltFrame.top + mBoltPoints[i + 1] * mBoltFrame.height());
+                    }
+                    mBoltPath.lineTo(
+                            mBoltFrame.left + mBoltPoints[0] * mBoltFrame.width(),
+                            mBoltFrame.top + mBoltPoints[1] * mBoltFrame.height());
+                }
+                canvas.drawPath(mBoltPath, mBoltPaint);
+            } else if (!tracker.plugged && level <= mCriticalLevel) {
+                // draw the warning text
+                canvas.drawText(mWarningString, textX, mTextY, mWarningTextPaint);
+            } else if (mShowPercent 
+                    && !(tracker.level == 100 && !SHOW_100_PERCENT)) {
+                // draw the percentage text
+                String pctText = String.valueOf(SINGLE_DIGIT_PERCENT ? (level/10) : level);
+                canvas.drawText(pctText, textX, mTextY, mTextPaint);
+            }
+        }
+
+        /**
+         * initializes all size dependent variables
+         * sets stroke width and text size of all involved paints
+         * YES! i think the method name is appropriate
+         */
+        private void initSizeBasedStuff() {
+            mCircleSize = Math.min(getMeasuredWidth(), getMeasuredHeight());
+            mTextPaint.setTextSize(mCircleSize / 2f);
+            mWarningTextPaint.setTextSize(mCircleSize / 2f);
+
+            float strokeWidth = mCircleSize / STROKE_WITH;
+            mFrontPaint.setStrokeWidth(strokeWidth);
+            mBackPaint.setStrokeWidth(strokeWidth);
+
+            // calculate rectangle for drawArc calls
+            int pLeft = getPaddingLeft();
+            mRectLeft = new RectF(pLeft + strokeWidth / 2.0f, 0 + strokeWidth / 2.0f, mCircleSize
+                    - strokeWidth / 2.0f + pLeft, mCircleSize - strokeWidth / 2.0f);
+
+            // calculate Y position for text
+            Rect bounds = new Rect();
+            mTextPaint.getTextBounds("99", 0, "99".length(), bounds);
+            mTextX = mCircleSize / 2.0f + getPaddingLeft();
+            // the +1dp at end of formula balances out rounding issues.works out on all resolutions
+            mTextY = mCircleSize / 2.0f + (bounds.bottom - bounds.top) / 2.0f
+                    - strokeWidth / 2.0f + getResources().getDisplayMetrics().density;
+        }
+    }
+
+    private void startChargeAnim(BatteryTracker tracker) {
+        if (!tracker.shouldIndicateCharging()
+                || tracker.status == BatteryManager.BATTERY_STATUS_FULL
+                || mChargeAnimDisabled) {
+            return;
+        }
+        mIsAnimating = true;
+        mAnimLevel = tracker.level;
+
+        updateChargeAnim(tracker);
     }
 
     private boolean mDemoMode;
