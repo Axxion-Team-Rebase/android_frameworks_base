@@ -249,13 +249,11 @@ public class RecentsActivity extends Activity implements RecentsView.RecentsView
                 }
             });
             mRecentsView.setSearchBarVisibility(View.GONE);
-            findViewById(R.id.clear_recents).setVisibility(View.GONE);
         } else {
             if (mEmptyView != null) {
                 mEmptyView.setVisibility(View.GONE);
                 mEmptyView.setOnClickListener(null);
             }
-            findViewById(R.id.clear_recents).setVisibility(View.VISIBLE);
             if (mRecentsView.hasSearchBar()) {
                 mRecentsView.setSearchBarVisibility(View.GONE);
             } else {
