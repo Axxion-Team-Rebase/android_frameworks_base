@@ -27,6 +27,9 @@ import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
@@ -69,6 +72,7 @@ import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.statusbar.policy.DeadZone;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 
+import java.net.URISyntaxException;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -77,8 +81,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NavigationBarView extends LinearLayout {
-    final static boolean DEBUG = false;
-    final static String TAG = "PhoneStatusBar/NavigationBarView";
+    private static final boolean DEBUG = false;
+    private final static String TAG = "PhoneStatusBar/NavigationBarView";
 
     // slippery nav bar when everything is disabled, e.g. during setup
     final static boolean SLIPPERY_WHEN_DISABLED = true;
@@ -704,7 +708,15 @@ public class NavigationBarView extends LinearLayout {
 						} catch (NameNotFoundException e) {
 						} catch (URISyntaxException e) {
 							e.printStackTrace();
-						}					
+						}
+						final int[] appIconPadding = getAppIconPadding();
+							if (landscape) {
+								v.setPaddingRelative(appIconPadding[1], appIconPadding[0],
+									appIconPadding[3], appIconPadding[2]);
+							} else {
+								v.setPaddingRelative(appIconPadding[0], appIconPadding[1],
+									appIconPadding[2], appIconPadding[3]);
+							}  						
 					} else {
 							d = mContext.getResources().getDrawable(leftdrawable); 
 					}		
@@ -771,7 +783,16 @@ public class NavigationBarView extends LinearLayout {
 					} catch (NameNotFoundException e) {
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
-					}					
+					}	
+						final int[] appIconPadding = getAppIconPadding();
+							if (landscape) {
+								v.setPaddingRelative(appIconPadding[1], appIconPadding[0],
+									appIconPadding[3], appIconPadding[2]);
+							} else {
+								v.setPaddingRelative(appIconPadding[0], appIconPadding[1],
+									appIconPadding[2], appIconPadding[3]);
+							}  				
+				// Take normal action drawable					
 				} else {
 						d = mContext.getResources().getDrawable(rightdrawable);   
 				}					
@@ -834,7 +855,7 @@ public class NavigationBarView extends LinearLayout {
             v.setId(R.id.ime_switcher);
             v.setVisibility(View.GONE);
             d = mContext.getResources().getDrawable(R.drawable.ic_ime_switcher_default);
-        }
+        }      
 
         if (mNavBarButtonColorMode != 3) {
             if (d instanceof VectorDrawable) {
