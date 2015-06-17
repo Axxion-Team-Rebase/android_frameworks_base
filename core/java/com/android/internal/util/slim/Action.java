@@ -42,7 +42,10 @@ import android.view.IWindowManager;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.WindowManagerGlobal;
+import android.widget.Toast;
 
+import com.android.internal.R;
+import com.android.internal.util.omni.TaskUtils;
 import com.android.internal.statusbar.IStatusBarService;
 
 import java.net.URISyntaxException;
@@ -51,6 +54,8 @@ public class Action {
 
     private static final int MSG_INJECT_KEY_DOWN = 1066;
     private static final int MSG_INJECT_KEY_UP = 1067;
+
+    private static int mCurrentUserId = 0;
 
     public static void processAction(Context context, String action, boolean isLongpress) {
         processActionWithOptions(context, action, isLongpress, true);
@@ -96,14 +101,19 @@ public class Action {
             } else if (action.equals(ActionConstants.ACTION_BACK)) {
                 triggerVirtualKeypress(KeyEvent.KEYCODE_BACK, isLongpress);
                 return;
+            } else if (action.equals(ActionConstants.ACTION_RECENTS)) {                
+                try {
+                    barService.toggleRecentApps();
+                } catch (RemoteException e) {
+                }  
+                return;                
             } else if (action.equals(ActionConstants.ACTION_SEARCH)) {
                 triggerVirtualKeypress(KeyEvent.KEYCODE_SEARCH, isLongpress);
                 return;
             } else if (action.equals(ActionConstants.ACTION_KILL)) {
                 if (isKeyguardShowing) return;
-                try {
-                    barService.toggleKillApp();
-                } catch (RemoteException e) {}
+				TaskUtils.killActiveTask(context, mCurrentUserId);
+					Toast.makeText(context, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
                 return;
             } else if (action.equals(ActionConstants.ACTION_NOTIFICATIONS)) {
                 if (isKeyguardShowing && isKeyguardSecure) {
@@ -122,7 +132,8 @@ public class Action {
                     barService.expandSettingsPanel();
                 } catch (RemoteException e) {}
             } else if (action.equals(ActionConstants.ACTION_LAST_APP)) {
-                TaskUtils.toggleLastApp(mContext, mCurrentUserId);
+                if (isKeyguardShowing) return;               
+                TaskUtils.toggleLastApp(context, mCurrentUserId);
                 return;
             } else if (action.equals(ActionConstants.ACTION_TORCH)) {
                 try {
@@ -275,6 +286,9 @@ public class Action {
             } else if (action.equals(ActionConstants.ACTION_SCREENSHOT)) {
                 context.sendBroadcast(new Intent(Intent.ACTION_SCREENSHOT));
                 return;
+            } else if (action.equals(ActionConstants.ACTION_SCREENRECORD)) {
+                context.sendBroadcast(new Intent(Intent.ACTION_SCREENRECORD));
+                return;                  
             } else {
                 // we must have a custom uri
                 Intent intent = null;

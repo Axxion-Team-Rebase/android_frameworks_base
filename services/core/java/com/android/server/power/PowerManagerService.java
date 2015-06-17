@@ -61,6 +61,7 @@ import android.os.WorkSource;
 import android.provider.Settings;
 import android.service.dreams.DreamManagerInternal;
 import android.util.EventLog;
+import android.util.Log;
 import android.util.Slog;
 import android.util.TimeUtils;
 import android.view.Display;
