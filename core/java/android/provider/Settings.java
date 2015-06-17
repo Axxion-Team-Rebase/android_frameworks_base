@@ -3415,7 +3415,6 @@ public final class Settings {
         public static final String NAVIGATION_BAR_CONFIG = "navigation_bar_config";
 
         /**
-<<<<<<< HEAD
          * Wether the navbar menu button is on the left/right/both
          * @hide
          */
