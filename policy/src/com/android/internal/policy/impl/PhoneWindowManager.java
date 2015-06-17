@@ -872,105 +872,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
     }
-
-    class HwKeySettingsObserver extends ContentObserver {
-        HwKeySettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            // Observe all hw key users' changes
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_HOME_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_HOME_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_HOME_DOUBLE_TAP_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_MENU_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_MENU_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_MENU_DOUBLE_TAP_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_ASSIST_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_ASSIST_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_ASSIST_DOUBLE_TAP_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_APP_SWITCH_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_APP_SWITCH_DOUBLE_TAP_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_BACK_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_BACK_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_BACK_DOUBLE_TAP_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.HARDWARE_KEY_REBINDING), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_CAMERA_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_CAMERA_LONG_PRESS_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEY_CAMERA_DOUBLE_TAP_ACTION), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.HOME_BUTTON_ANSWER), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.HARDWARE_KEYS_DISABLE), false, this,
-                    UserHandle.USER_ALL);
-                    
-            updateKeyAssignments();
-            
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.USE_EDGE_SERVICE_FOR_GESTURES), false, this,
-                    UserHandle.USER_ALL);
-                    
-            updateSettings();
-        }
-
-        @Override public void onChange(boolean selfChange) {
-            updateSettings();
-            updateRotation(false);
-        }
-    }
-
-    class MyWakeGestureListener extends WakeGestureListener {
-        MyWakeGestureListener(Context context, Handler handler) {
-            super(context, handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            updateKeyAssignments();
-        }
-    }
-
+    
     class MyOrientationListener extends WindowOrientationListener {
         MyOrientationListener(Context context, Handler handler) {
             super(context, handler);
@@ -1484,7 +1386,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
 
-<<<<<<< HEAD
     private final Runnable mScreenshotRunnable = new Runnable() {
         @Override
         public void run() {
@@ -1513,8 +1414,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
 
-=======
->>>>>>> a3967e5... FrameworksBase: Fix build
     @Override
     public void showGlobalActions() {
         mHandler.removeMessages(MSG_DISPATCH_SHOW_GLOBAL_ACTIONS);
