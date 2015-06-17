@@ -466,6 +466,33 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.MENU_VISIBILITY),
                     false, this, UserHandle.USER_ALL);
+			resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LAYOUT),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_ACTION),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_ACTION),
+                    false, this, UserHandle.USER_ALL);        
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_LONG_ACTION),
+                    false, this, UserHandle.USER_ALL);   
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_LONG_ACTION),
+                    false, this, UserHandle.USER_ALL); 
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_SHORTCUT_URI),
+                    false, this, UserHandle.USER_ALL);     
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_SHORTCUT_URI),
+                    false, this, UserHandle.USER_ALL);                        
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_LONG_SHORTCUT_URI),
+                    false, this, UserHandle.USER_ALL);              
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_LONG_SHORTCUT_URI),
+                    false, this, UserHandle.USER_ALL); 
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.USE_SLIM_RECENTS), false, this,
                     UserHandle.USER_ALL);
@@ -480,7 +507,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HEADS_UP_NOTIFCATION_DECAY),
-                    false, this, UserHandle.USER_ALL);
+                    false, this, UserHandle.USER_ALL);      
             update();
         }
 
@@ -525,7 +552,25 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 || uri.equals(Settings.System.getUriFor(
                     Settings.System.MENU_LOCATION))
                 || uri.equals(Settings.System.getUriFor(
-                    Settings.System.MENU_VISIBILITY))) {
+                    Settings.System.MENU_VISIBILITY))
+				|| uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LAYOUT))
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_ACTION))                                       
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_ACTION))
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_LONG_ACTION))
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_LONG_ACTION))
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_SHORTCUT_URI))
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_SHORTCUT_URI))                    
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_LEFT_LONG_SHORTCUT_URI))   
+                || uri.equals(Settings.System.getUriFor(
+                    Settings.System.LEGACY_MENU_RIGHT_LONG_SHORTCUT_URI))) {                       
                 if (mNavigationBarView != null) {
                     mNavigationBarView.recreateNavigationBar();
                     prepareNavigationBarView();
