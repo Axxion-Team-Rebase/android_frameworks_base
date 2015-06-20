@@ -2775,7 +2775,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         // Settings are not available in setup
         if (!mUserSetup) return;
 
-        mNotificationPanel.expandWithQs();
+        mNotificationPanel.expand();
+        mNotificationPanel.openQs();
 
         if (false) postStartTracing();
     }
