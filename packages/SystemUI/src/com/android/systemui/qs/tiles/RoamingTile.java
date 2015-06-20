@@ -49,7 +49,6 @@ import com.android.systemui.qs.QSTile;
 
 /** Quick settings tile: Roaming switch **/
 public class RoamingTile extends QSTile<QSTile.BooleanState> {
-    private static final Intent WIRELESS_SETTINGS = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
     private final RoamingObserver mRoamingObserver;
     private boolean mListening = false;
     private boolean mIsForeignState = false;
@@ -68,11 +67,6 @@ public class RoamingTile extends QSTile<QSTile.BooleanState> {
     @Override
     public void handleClick() {
         setEnabled(!mState.value);
-    }
-
-    @Override
-    protected void handleLongClick() {
-        mHost.startSettingsActivity(WIRELESS_SETTINGS);
     }
 
     private void setEnabled(boolean enabled) {
