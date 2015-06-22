@@ -51,10 +51,6 @@
   <java-symbol type="dimen" name="max_avatar_size" />
   <java-symbol type="id" name="hide_lock_to_app_checkbox" />
 
-  <!-- Last app switch animations -->
-  <java-symbol type="anim" name="last_app_in" />
-  <java-symbol type="anim" name="last_app_out" />
-
   <java-symbol type="id" name="option4" />
   <java-symbol type="id" name="option5" />
   <java-symbol type="style" name="GlobalActionsAnimation" />

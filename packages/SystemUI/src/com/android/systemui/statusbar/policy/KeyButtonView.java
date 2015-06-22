@@ -81,7 +81,6 @@ public class KeyButtonView extends ImageView {
     private LongClickCallback mCallback;
 
     private PowerManager mPm;
-    private boolean mPerformedLongClick;
 
     private final Runnable mCheckLongPress = new Runnable() {
         public void run() {
@@ -90,7 +89,6 @@ public class KeyButtonView extends ImageView {
                 // Log.d("KeyButtonView", "longpressed: " + this);
                 if (isLongClickable()) {
                     // Just an old-fashioned ImageView
-                    mPerformedLongClick = true;
                     performLongClick();
                 } else {
                     sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.FLAG_LONG_PRESS);
@@ -277,16 +275,13 @@ public class KeyButtonView extends ImageView {
                             performClick();
                         }
                     }
-                } else {
-                    // no key code, just a regular ImageView
-                    if (doIt && !mPerformedLongClick) {
-                        performClick();
+                    if (doIt) {
+                        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
                     }
                 }
                 if (mSupportsLongpress) {
                     removeCallbacks(mCheckLongPress);
                 }
-                mPerformedLongClick = false;
                 break;
         }
 
