@@ -30,6 +30,9 @@ import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
@@ -73,6 +76,7 @@ import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.statusbar.policy.DeadZone;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 
+import java.net.URISyntaxException;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -81,7 +85,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NavigationBarView extends LinearLayout {
-    private static final boolean DEBUG = NavbarUtils.DEBUG;
+    private static final boolean DEBUG = false;
     private final static String TAG = "PhoneStatusBar/NavigationBarView";
 
     // slippery nav bar when everything is disabled, e.g. during setup
@@ -470,6 +474,7 @@ public class NavigationBarView extends LinearLayout {
         v.setLongpressAction(longpress);
         int i = mContext.getResources().getDimensionPixelSize(R.dimen.navigation_key_width);
         v.setLayoutParams(getLayoutParams(landscape, i));
+        v.setScaleType(KeyButtonView.ScaleType.CENTER_INSIDE);
 
         if (clickAction.equals(ActionConstants.ACTION_BACK)) {
             v.setId(R.id.back);
@@ -483,9 +488,6 @@ public class NavigationBarView extends LinearLayout {
             mButtonIdList.add(buttonId);
         }
 
-        if (clickAction.startsWith("**")) {
-            v.setScaleType(KeyButtonView.ScaleType.CENTER);
-        }
 
         boolean colorize = true;
         if (iconUri != null && !iconUri.equals(ActionConstants.ICON_EMPTY)
@@ -910,7 +912,7 @@ public class NavigationBarView extends LinearLayout {
         addMe.setLayoutParams(v.getLayoutParams());
         addMe.setImageResource(empty ? R.drawable.ic_sysbar_lights_out_dot_large
                 : R.drawable.ic_sysbar_lights_out_dot_small);
-        addMe.setScaleType(ImageView.ScaleType.CENTER);
+        addMe.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         addMe.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
 
         if (landscape) {
