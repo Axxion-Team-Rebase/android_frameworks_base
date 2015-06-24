@@ -30,4 +30,5 @@
     <dimen name="recent_text_size">20dp</dimen>
     <dimen name="recent_thumbnail_bottom_padding">3dp</dimen>
     
+    <dimen name="ribbon_drag_handle_height">25dp</dimen>
 </resources>
