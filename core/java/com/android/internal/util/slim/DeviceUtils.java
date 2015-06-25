@@ -25,6 +25,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.WifiDisplayStatus;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.os.Vibrator;
 import android.telephony.TelephonyManager;

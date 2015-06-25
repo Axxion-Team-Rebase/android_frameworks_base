@@ -62,7 +62,8 @@ import java.util.Iterator;
  * an instance of this class.
  */
 public class AudioManager {
-
+	
+	private Context mContext;
     private Context mOriginalContext;
     private Context mApplicationContext;
     private long mVolumeKeyUpTime;

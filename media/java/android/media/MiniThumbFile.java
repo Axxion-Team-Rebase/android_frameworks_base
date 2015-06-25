@@ -63,7 +63,6 @@ public class MiniThumbFile {
     private static final int INDEX_FILE_VERSION = 3;
     public static final int BYTES_PER_INDEX = 8;
     private RandomAccessFile mIndexFile;
-    private FileChannel mIndexChannel;
     private ByteBuffer mIndexBuffer;
 
     /**
@@ -195,18 +194,6 @@ public class MiniThumbFile {
                 Environment.getExternalStorageDirectory().toString()
                 + "/DCIM/.thumbnails";
         return directoryName + "/.thumbindex" + version + "-" + mUri.hashCode();
-    }
-
-    private void removeOldIndexFile() {
-        String oldPath = indexFilePath(INDEX_FILE_VERSION - 1);
-        File oldFile = new File(oldPath);
-        if (oldFile.exists()) {
-            try {
-                oldFile.delete();
-            } catch (SecurityException ex) {
-                // ignore exception
-            }
-        }
     }
 
     private RandomAccessFile indexFile() {
@@ -370,7 +357,7 @@ public class MiniThumbFile {
 
             FileLock lock = null;
             long index = BYTES_PER_INDEX * id;
-            long pos = -1;
+            pos = -1;
             try {
                 mIndexBuffer.clear();
                 mIndexBuffer.limit(8);
@@ -444,7 +431,7 @@ public class MiniThumbFile {
         pos *= BYTES_PER_MINTHUMB;
         FileLock lock = null;
         long index = BYTES_PER_INDEX * id;
-        long pos = mMiniThumbFile.length();
+        pos = mMiniThumbFile.length();
         boolean writeIndexSuccess = false;
         try {
             mIndexBuffer.clear();
@@ -528,7 +515,7 @@ public class MiniThumbFile {
 
         FileLock lock = null;
         long index = BYTES_PER_INDEX * id;
-        long pos = -1;
+        pos = -1;
         try {
             mIndexBuffer.clear();
             mIndexBuffer.limit(8);

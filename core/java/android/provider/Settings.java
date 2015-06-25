@@ -3105,6 +3105,18 @@ public final class Settings {
         public static final String EGG_MODE = "egg_mode";
 
         /**
+         * Whether volume button press shuld be treated as wake key
+         * @hide
+         */
+        public static final String VOLUME_BUTTON_WAKE = "volume_button_wake";
+
+       /**
+         * Whether home button press shuld be treated as wake key
+         * @hide
+         */
+        public static final String HOME_BUTTON_WAKE = "home_button_wake";
+
+        /**
          * Show or hide clock
          * 0 - hide
          * 1 - show (default)
@@ -3356,38 +3368,6 @@ public final class Settings {
                 "key_camera_double_tap_action";
 
         /**
-         * Whether the battery light should be enabled (if hardware supports it)
-         * The value is boolean (1 or 0).
-         * @hide
-         */
-        public static final String BATTERY_LIGHT_ENABLED = "battery_light_enabled";
-
-        /**
-         * Whether the battery LED should repeatedly flash when the battery is low
-         * on charge. The value is boolean (1 or 0).
-         * @hide
-         */
-        public static final String BATTERY_LIGHT_PULSE = "battery_light_pulse";
-
-        /**
-         * What color to use for the battery LED while charging - low
-         * @hide
-         */
-        public static final String BATTERY_LIGHT_LOW_COLOR = "battery_light_low_color";
-
-        /**
-         * What color to use for the battery LED while charging - medium
-         * @hide
-         */
-        public static final String BATTERY_LIGHT_MEDIUM_COLOR = "battery_light_medium_color";
-
-        /**
-         * What color to use for the battery LED while charging - full
-         * @hide
-         */
-        public static final String BATTERY_LIGHT_FULL_COLOR = "battery_light_full_color";
-
-        /**
          * What color to use for the battery LED while charging - really full (100%)
          * @hide
          */
@@ -3585,24 +3565,6 @@ public final class Settings {
          */
         public static final String SWAP_VOLUME_BUTTONS = "swap_volume_buttons";
 
-         /**
-          * Action to perform when the key is pressed
-          * 0 - Nothing
-          * 1 - Menu
-          * 2 - App-switch
-          * 3 - Search
-          * 4 - Voice search
-          * 5 - In-app search
-          * 6 - home
-          * 7 - back
-          * 8 - toggle last app
-          * 9 - kill app
-          * 10 - go to sleep
-          * 11 - OmniSwitch recents
-          * @hide
-          */
-        public static final String HARDWARE_KEY_REBINDING = "hardware_key_rebinding";
-
         /**
          * Recent card background color
          *
@@ -3779,11 +3741,6 @@ public final class Settings {
          */
         public static final String HARDWARE_KEYS_DISABLE = "hardware_keys_disable";
 
-        /**
-         * Timeout value for button lights. 0 = disabled
-         * @hide
-         */
-        public static final String BUTTON_BACKLIGHT_TIMEOUT = "button_backlight_timeout";
 
 		/**
          * Heads Up Notifications
