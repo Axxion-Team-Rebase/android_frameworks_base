@@ -1835,7 +1835,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if (stmt != null) stmt.close();
             }
             upgradeVersion = 113;
-        
+        }
         // We skipped 114 to handle a merge conflict with the introduction of theater mode.
 
         if (upgradeVersion < 115) {

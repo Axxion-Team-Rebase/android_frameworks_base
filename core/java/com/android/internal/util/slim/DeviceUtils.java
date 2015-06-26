@@ -98,7 +98,7 @@ public class DeviceUtils {
         Vibrator vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
         return vibrator.hasVibrator();
     }
-
+    
     public static boolean deviceSupportsTorch(Context context) {
         // Need to be adapted to new torch API
         return true;

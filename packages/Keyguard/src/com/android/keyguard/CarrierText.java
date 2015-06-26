@@ -16,12 +16,14 @@
 
 package com.android.keyguard;
 
+import java.util.List;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.text.method.SingleLineTransformationMethod;
+import android.telephony.SubscriptionInfo;
 import android.text.TextUtils;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
@@ -46,8 +48,10 @@ public class CarrierText extends LinearLayout {
     private static final boolean DEBUG = KeyguardConstants.DEBUG;
     private static final int mNumPhones = TelephonyManager.getDefault().getPhoneCount();
     private static CharSequence mSeparator;
-
+    
+	private CharSequence text;
     private LockPatternUtils mLockPatternUtils;
+    private KeyguardUpdateMonitor mKeyguardUpdateMonitor;
 
     private boolean mShowAPM;
 
@@ -141,6 +145,12 @@ public class CarrierText extends LinearLayout {
 
     protected void updateCarrierText(State simState, CharSequence plmn, CharSequence spn,
             int subId) {
+        boolean allSimsMissing = true;
+        CharSequence displayText = null;
+        
+        List<SubscriptionInfo> subs = mKeyguardUpdateMonitor.getSubscriptionInfo(false);
+        final int N = subs.size();
+        
         if(DEBUG) Log.d(TAG, "updateCarrierText, simState=" + simState + " plmn=" + plmn
             + " spn=" + spn +" subId=" + subId);
         int phoneId = mUpdateMonitor.getPhoneIdBySubId(subId);
@@ -164,26 +174,27 @@ public class CarrierText extends LinearLayout {
                 // Grab it from the old sticky broadcast if possible instead. We can use it
                 // here because no subscriptions are active, so we don't have
                 // to worry about MSIM clashing.
-                CharSequence text =
+                text =
                         getContext().getText(com.android.internal.R.string.emergency_calls_only);
                 Intent i = getContext().registerReceiver(null,
                         new IntentFilter(TelephonyIntents.SPN_STRINGS_UPDATED_ACTION));
                 if (i != null) {
-                    String spn = "";
-                    String plmn = "";
+                    String sspn = "";
+                    String splmn = "";
                     if (i.getBooleanExtra(TelephonyIntents.EXTRA_SHOW_SPN, false)) {
-                        spn = i.getStringExtra(TelephonyIntents.EXTRA_SPN);
+                        sspn = i.getStringExtra(TelephonyIntents.EXTRA_SPN);
                     }
                     if (i.getBooleanExtra(TelephonyIntents.EXTRA_SHOW_PLMN, false)) {
-                        plmn = i.getStringExtra(TelephonyIntents.EXTRA_PLMN);
+                        splmn = i.getStringExtra(TelephonyIntents.EXTRA_PLMN);
                     }
-                    if (DEBUG) Log.d(TAG, "Getting plmn/spn sticky brdcst " + plmn + "/" + spn);
-                    text = concatenate(plmn, spn);
+                    if (DEBUG) Log.d(TAG, "Getting plmn/spn sticky brdcst " + splmn + "/" + sspn);
+                    text = concatenate(splmn, sspn);
                 }
                 displayText =  makeCarrierStringOnEmergencyCapable(
-                        getContext().getText(R.string.keyguard_missing_sim_message_short), text);
-            }
+                        getContext().getText(R.string.keyguard_missing_sim_message_short), text);                       
+            }          
         }
+		TextView updateCarrierView = mOperatorName[phoneId];
         updateCarrierView.setText(text != null ? text.toString() : null);
     }
 

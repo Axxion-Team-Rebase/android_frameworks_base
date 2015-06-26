@@ -492,9 +492,6 @@ public final class PowerManagerService extends SystemService
     // overrule and disable brightness for buttons
     private boolean mHardwareKeysDisable = false;
 
-    // timeout for button backlight automatic turning off
-    private int mButtonTimeout;
-
     private native void nativeInit();
 
     private static native void nativeAcquireSuspendBlocker(String name);
@@ -659,6 +656,7 @@ public final class PowerManagerService extends SystemService
                     false, mSettingsObserver, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PROXIMITY_ON_WAKE),
+                    false, mSettingsObserver, UserHandle.USER_ALL);
 
             // Go.
             readConfigurationLocked();
@@ -738,6 +736,7 @@ public final class PowerManagerService extends SystemService
             PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
             mProximityWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     "ProximityWakeLock");
+        }
                     
         mButtonBrightnessSupport = resources.getBoolean(
                 com.android.internal.R.bool.config_button_brightness_support);
@@ -3688,7 +3687,7 @@ public final class PowerManagerService extends SystemService
 				}
 			}
 		}
-	
+		
         /**
          * Used by the settings application and brightness control widgets to
          * temporarily override the current button brightness setting so that the
@@ -3729,7 +3728,7 @@ public final class PowerManagerService extends SystemService
 
             final long ident = Binder.clearCallingIdentity();
             try {
-                setButtonBrightnessOverrideFromWindowManagerInternal(screenBrightness);
+                   setButtonBrightnessOverrideFromWindowManagerInternal(screenBrightness);
             } finally {
                 Binder.restoreCallingIdentity(ident);
             }
