@@ -549,7 +549,7 @@ public class DozeService extends DreamService implements ProximitySensorManager.
                 }
                 rescheduleNotificationPulse(mNotificationLightOn);
             }
-            if (UiModeManager.ACTION_ENTER_CAR_MO`DE.equals(intent.getAction())) {
+            if (UiModeManager.ACTION_ENTER_CAR_MODE.equals(intent.getAction())) {
                 mCarMode = true;
                 if (mCarMode && mDreaming) {
                     finishForCarMode();

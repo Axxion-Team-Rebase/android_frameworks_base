@@ -517,9 +517,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.SU_INDICATOR))) {
                 mSuController.updateNotification();
                 mSuController.fireCallbacks();
-            }
-            super.onChange(selfChange, uri);
-            else if (uri.equals(Settings.System.getUriFor(
+            } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.BATTERY_SAVER_MODE_COLOR))) {
                     mBatterySaverWarningColor = Settings.System.getIntForUser(
                             mContext.getContentResolver(),
@@ -539,6 +537,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                             UserHandle.USER_CURRENT);
                     resetHeadsUpDecayTimer();
             }
+            super.onChange(selfChange, uri);
             update();
 
             if (uri.equals(Settings.System.getUriFor(

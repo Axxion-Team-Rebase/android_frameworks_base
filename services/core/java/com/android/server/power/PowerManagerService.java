@@ -3678,16 +3678,6 @@ public final class PowerManagerService extends SystemService
             }
         }
 
-		private void setButtonBrightnessOverrideFromWindowManagerInternal(int brightness) {
-			synchronized (mLock) {
-				if (mButtonBrightnessOverrideFromWindowManager != brightness) {
-					mButtonBrightnessOverrideFromWindowManager = brightness;
-					mDirty |= DIRTY_SETTINGS;
-					updatePowerStateLocked();
-				}
-			}
-		}
-		
         /**
          * Used by the settings application and brightness control widgets to
          * temporarily override the current button brightness setting so that the
@@ -3711,7 +3701,18 @@ public final class PowerManagerService extends SystemService
             }
         }
     }
-
+	
+	
+    private void setButtonBrightnessOverrideFromWindowManagerInternal(int brightness) {
+        synchronized (mLock) {
+            if (mButtonBrightnessOverrideFromWindowManager != brightness) {
+                mButtonBrightnessOverrideFromWindowManager = brightness;
+                mDirty |= DIRTY_SETTINGS;
+                updatePowerStateLocked();
+            }
+        }
+    }
+    
     private final class LocalService extends PowerManagerInternal {
         @Override
         public void setScreenBrightnessOverrideFromWindowManager(int screenBrightness) {

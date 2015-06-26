@@ -239,6 +239,7 @@ public class StorageNotification extends SystemUI {
 
     private void onStorageStateChangedAsync(String path, String oldState, String newState) {
         boolean isPrimary = mStorageManager.getPrimaryVolume().getPath().equals(path);
+        if (DEBUG) Log.i(TAG, String.format(
                 "Media {%s} state changed from {%s} -> {%s}", path, oldState, newState));
         StorageEntry entry = findEntry(path);
         if (entry != null) {

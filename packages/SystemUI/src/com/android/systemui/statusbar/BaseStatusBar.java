@@ -1250,17 +1250,14 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     protected void hideRecents(boolean triggeredFromAltTab, boolean triggeredFromHomeKey) {
-        if (mRecents != null) {
-            mRecents.hideRecents(triggeredFromAltTab, triggeredFromHomeKey);
-        } else if (mSlimRecents != null) {
-            mSlimRecents.hideRecents(triggeredFromHomeKey);
         if (isOmniSwitchEnabled()) {
             Intent showIntent = new Intent(OmniSwitchConstants.ACTION_HIDE_OVERLAY);
             mContext.sendBroadcastAsUser(showIntent, UserHandle.CURRENT);
         } else {
-            if (mRecents != null) {
+            if (mRecents != null) 
                 mRecents.hideRecents(triggeredFromAltTab, triggeredFromHomeKey);
-            }
+			else if (mSlimRecents != null) 
+				mSlimRecents.hideRecents(triggeredFromHomeKey);
         }
     }
 
@@ -1303,7 +1300,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             if (mRecents != null) {
                 mRecents.showNextAffiliatedTask();
             }
-        if (mRecents != null) {
+        } if (mRecents != null) {
              mRecents.showNextAffiliatedTask();
         }
     }
