@@ -1251,37 +1251,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         finishPowerKeyPress();
     }
 
-    private void interceptPowerKeyUp(KeyEvent event, boolean interactive, boolean canceled) {
-        final boolean handled = canceled || mPowerKeyHandled;
-        mPowerKeyTriggered = false;
-        cancelPendingScreenshotChordAction();
-        cancelPendingScreenrecordChordAction();
-        cancelPendingPowerKeyAction();
-
-        if (!handled) {
-            // Figure out how to handle the key now that it has been released.
-            mPowerKeyPressCounter += 1;
-
-            final int maxCount = getMaxMultiPressPowerCount();
-            final long eventTime = event.getDownTime();
-            if (mPowerKeyPressCounter < maxCount) {
-                // This could be a multi-press.  Wait a little bit longer to confirm.
-                // Continue holding the wake lock.
-                Message msg = mHandler.obtainMessage(MSG_POWER_DELAYED_PRESS,
-                        interactive ? 1 : 0, mPowerKeyPressCounter, eventTime);
-                msg.setAsynchronous(true);
-                mHandler.sendMessageDelayed(msg, ViewConfiguration.getDoubleTapTimeout());
-                return;
-            }
-
-            // No other actions.  Handle it immediately.
-            powerPress(eventTime, interactive, mPowerKeyPressCounter);
-        }
-
-        // Done.  Reset our state.
-        finishPowerKeyPress();
-    }
-    
     private void finishPowerKeyPress() {
         mBeganFromNonInteractive = false;
         mPowerKeyPressCounter = 0;
@@ -3597,36 +3566,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         Action.processAction(mContext, mDoubleTapOnAssistBehavior, false);
                     }
                 } else if (longPress) {
-                    if (mRecentAppsPreloaded &&
-                            mLongPressOnMenuBehavior != KEY_ACTION_APP_SWITCH) {
-                        cancelPreloadRecentApps();
-                    }
-                    if (!keyguardOn) {
-                        // check for locked mode
-                        if (stopLockTaskMode()) {
-                            // Do not perform action when key is released
-                            mMenuDoCustomAction = false;
-                            return -1;
+                    if (!keyguardOn
+                            && !mLongPressOnAssistBehavior.equals(ActionConstants.ACTION_NULL)) {
+                        if (!mLongPressOnAssistBehavior.equals(ActionConstants.ACTION_RECENTS)) {
+                            cancelPreloadRecentApps();
                         }
-                        if (mLongPressOnMenuBehavior != KEY_ACTION_NOTHING) {
-                            performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
-                            performKeyAction(mLongPressOnMenuBehavior);
-                            // Do not perform action when key is released
-                            mMenuDoCustomAction = false;
-                            return -1;
-                        }
-                    }
-                }
-            } else {
-                if (mRecentAppsPreloaded && mPressOnMenuBehavior != KEY_ACTION_APP_SWITCH &&
-                        mLongPressOnMenuBehavior != KEY_ACTION_APP_SWITCH) {
-                    cancelPreloadRecentApps();
-                }
-                if (mMenuDoCustomAction) {
-                    mMenuDoCustomAction = false;
-                    if (!canceled && !keyguardOn) {
-                        performKeyAction(mPressOnMenuBehavior);
-                        return -1;
+                        performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
+                        Action.processAction(mContext, mLongPressOnAssistBehavior, false);
+                        mAssistConsumed = true;
                     }
                 }
             }
@@ -3831,31 +3778,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         Action.processAction(mContext, mDoubleTapOnBackBehavior, false);
                     }
                 } else if (longPress) {
-                    if (mRecentAppsPreloaded &&
-                            mLongPressOnBackBehavior != KEY_ACTION_APP_SWITCH) {
-                        cancelPreloadRecentApps();
-                    }
-                    if (!keyguardOn) {
-                        if (mLongPressOnBackBehavior != KEY_ACTION_NOTHING) {
-                            performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
-
-                            performKeyAction(mLongPressOnBackBehavior);
-                            // Do not perform action when key is released
-                            mBackDoCustomAction = false;
-                            return -1;
+                    if (!keyguardOn
+                            && !mLongPressOnBackBehavior.equals(ActionConstants.ACTION_NULL)) {
+                        if (!mLongPressOnBackBehavior.equals(ActionConstants.ACTION_RECENTS)) {
+                            cancelPreloadRecentApps();
                         }
-                    }
-                }
-            } else {
-                if (mRecentAppsPreloaded && mPressOnBackBehavior != KEY_ACTION_APP_SWITCH &&
-                        mLongPressOnBackBehavior != KEY_ACTION_APP_SWITCH) {
-                    cancelPreloadRecentApps();
-                }
-                if (mBackDoCustomAction) {
-                    mBackDoCustomAction = false;
-                    if (!canceled && !keyguardOn) {
-                        performKeyAction(mPressOnBackBehavior);
-                        return -1;
+                        performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
+                        Action.processAction(mContext, mLongPressOnBackBehavior, false);
+                        mBackConsumed = true;
                     }
                 }
             }
@@ -6207,15 +6137,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mPowerKeyTriggered = false;
                     cancelPendingScreenshotChordAction();
                     cancelPendingScreenrecordChordAction();
-                    if (interceptPowerKeyUp(event, interactive, canceled)) {
-                        if (mScreenOnEarly && !mScreenOnFully) {
-                            Slog.i(TAG, "Suppressed redundant power key press while "
-                                    + "already in the process of turning the screen on.");
-                        } else {
-                            powerShortPress(event.getEventTime());
-                        }
-                        isWakeKey = false;
-                    }
+                    interceptPowerKeyUp(event, interactive, canceled);
                 }
                 break;
             }
@@ -8084,21 +8006,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 return mHomeWakeSupport;
         }
 
-        return false;
-    }
-
-    private boolean stopLockTaskMode() {
-        // in this case there is a different way to stop it
-        if (DeviceUtils.deviceSupportNavigationBar(mContext)) {
-            return false;
-        }
-        try {
-            if (ActivityManagerNative.getDefault().isInLockTaskMode()) {
-                ActivityManagerNative.getDefault().stopLockTaskModeOnCurrent();
-                return true;
-            }
-        } catch (RemoteException e) {
-        }
         return false;
     }
 
