@@ -736,13 +736,7 @@ public class TaskView extends FrameLayout implements Task.TaskCallbacks,
     @Override
     public boolean onLongClick(View v) {
         if (v == mHeaderView.mApplicationIcon) {
-            boolean showDevShortcuts = Settings.Secure.getInt(v.getContext().getContentResolver(),
-                        Settings.Secure.DEVELOPMENT_SHORTCUT, 0) != 0;
-            if (showDevShortcuts) {
-                mCb.onTaskViewLongClicked(this);
-            } else {
-                mCb.onTaskViewAppInfoClicked(this);
-            }
+			mCb.onTaskViewLongClicked(this);
             return true;
         }
         return false;

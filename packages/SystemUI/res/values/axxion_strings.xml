@@ -18,4 +18,6 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <string name="floating_mode_title">Floating Mode</string>
+
 </resources>

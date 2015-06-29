@@ -40,6 +40,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -133,6 +134,8 @@ public class WindowDecorActionBar extends ActionBar implements
 
     private FloatingWindowView mFloatingWindowView;
 
+	private ActivityManager.TaskDescription td;
+	
     final AnimatorListener mHideListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(Animator animation) {
@@ -485,79 +488,19 @@ public class WindowDecorActionBar extends ActionBar implements
      */
     public void changeColorFromActionBar() {
         if (mFloatingWindowView != null) {
-            int textColor = -2;
-            int iconTint = Color.WHITE;
-            int color = Color.TRANSPARENT;
-            if (mActionView != null) {
-                TextView titleView = mActionView.getTitleViewActionBar();
-                if (titleView != null) {
-                    if (titleView.getVisibility() == View.VISIBLE) {
-                        textColor = titleView.getCurrentTextColor();
-                    }
-                }
-            }
-            if (textColor != -2) {
-                iconTint = textColor;
-            }
-            if (mContainerView != null) {
-                Drawable drawable = mContainerView.getPrimaryBackground();
-                if (drawable == null) {
-                    drawable = mContainerView.getStackedBackground();
-                    if (drawable == null) {
-                        drawable = mContainerView.getBackground();
-                    }
-                }
-                color = getMainColorFromActionBarDrawable(drawable);
+            int color = td.getPrimaryColor();
+            int iconTint;        
+            if (ColorUtils.isBrightColor(color)) {
+				iconTint = Color.BLACK;
+			} else {
+				iconTint = Color.WHITE;
             }
             changeFloatingWindowColor(color, iconTint);
         }
     }
 
-    private int getMainColorFromActionBarDrawable(Drawable drawable) {
-        if (drawable == null) {
-            return Color.TRANSPARENT;
-        }
-
-        Drawable copyDrawable = drawable.getConstantState().newDrawable();
-        if (copyDrawable instanceof ColorDrawable) {
-            return ((ColorDrawable) drawable).getColor();
-        }
-        Bitmap bitmap = drawableToBitmap(copyDrawable);
-        int pixel = bitmap.getPixel(0, 5);
-        int red = Color.red(pixel);
-        int blue = Color.blue(pixel);
-        int green = Color.green(pixel);
-        int alpha = Color.alpha(pixel);
-        return Color.argb(alpha, red, green, blue);
-    }
-
-    private Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable == null) {
-            return null;
-        }
-
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
-
-        Bitmap bitmap;
-        int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
-        if (width > 0 && height > 0) {
-            bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-        } else {
-            bitmap = null;
-        }
-
-        return bitmap;
-    }
-
     public void setBackgroundDrawable(Drawable d) {
         mContainerView.setPrimaryBackground(d);
-        changeColorFromActionBar();
     }
 
     public void setStackedBackgroundDrawable(Drawable d) {
