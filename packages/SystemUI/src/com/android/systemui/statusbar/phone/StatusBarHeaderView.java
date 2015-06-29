@@ -1069,18 +1069,6 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
         PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         pm.goToSleep(SystemClock.uptimeMillis());
     }   
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (v == mStatusBarPowerMenu) {
-            if (mStatusBarPowerMenuStyle == STATUS_BAR_POWER_MENU_DEFAULT) {
-                triggerPowerMenuDialog();
-            } else if (mStatusBarPowerMenuStyle == STATUS_BAR_POWER_MENU_INVERTED) {
-                goToSleep();
-            }
-        }
-        return false;
-    }
     /*
      * Finish status bar powermenu
      */ 

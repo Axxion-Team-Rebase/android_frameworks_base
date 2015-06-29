@@ -1232,8 +1232,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             } else {
                 qsh = new QSTileHost(mContext, this,
                     mBluetoothController, mLocationController, mRotationLockController,
-                    mNetworkController, mZenModeController, mVolumeComponent,
-                    mHotspotController, mCastController, mUserSwitcherController,
+                    mNetworkController, mZenModeController, mHotspotController,
+                    mVolumeComponent, mCastController, mUserSwitcherController,
                     mKeyguardMonitor, mSecurityController);
             }
             mQSPanel.setHost(qsh);
@@ -1958,20 +1958,26 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
         mStackScroller.updateSpeedBumpIndex(speedbumpIndex);
     }
+	
+	private void handleUpdateNotifications() {
+        // TODO: Move this into updateNotificationIcons()?
+        if (mNotificationIcons == null) return;
 
-    @Override
-    protected void updateNotifications() {
         mNotificationData.filterAndSort();
 
         updateNotificationShade();
         updateNotificationIcons();
     }
-
+    
     @Override
     protected void updateNotifications() {
         if (!mHandler.hasMessages(MSG_UPDATE_NOTIFICATIONS)) {
             mHandler.sendEmptyMessage(MSG_UPDATE_NOTIFICATIONS);
         }
+        mNotificationData.filterAndSort();
+
+        updateNotificationShade();
+        updateNotificationIcons();
     }
 
     private void updateNotificationIcons() {
@@ -3633,6 +3639,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mGestureRec.tag("display",
                     String.format("%dx%d", mDisplayMetrics.widthPixels, mDisplayMetrics.heightPixels));
         }
+    }
+
+    float getDisplayDensity() {
+        return mDisplayMetrics.density;
     }
 
     public void startActivityDismissingKeyguard(final Intent intent, boolean onlyProvisioned,

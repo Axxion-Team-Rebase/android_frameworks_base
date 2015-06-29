@@ -52,6 +52,8 @@ import com.android.internal.util.cm.LockscreenShortcutsHelper;
 import com.android.internal.widget.LockPatternUtils;
 
 import com.android.keyguard.KeyguardStatusView;
+import com.android.systemui.EventLogTags;
+import com.android.systemui.EventLogConstants;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSContainer;
 import com.android.systemui.qs.QSPanel;
@@ -1762,6 +1764,9 @@ public class NotificationPanelView extends PanelView implements
         boolean start = getLayoutDirection() == LAYOUT_DIRECTION_RTL ? rightPage : !rightPage;
         mIsLaunchTransitionRunning = true;
         mLaunchAnimationEndRunnable = null;
+        float displayDensity = mStatusBar.getDisplayDensity();
+        int lengthDp = Math.abs((int) (translation / displayDensity));
+        int velocityDp = Math.abs((int) (vel / displayDensity));
         if (start) {
             mKeyguardBottomArea.launchPhone();
         } else if (!mKeyguardBottomArea.isTargetCustom(
