@@ -1166,13 +1166,6 @@ public class TaskStackView extends FrameLayout implements TaskStack.TaskStackCal
                         break;
                     case R.id.recent_inspect_item:
                         onTaskViewAppInfoClicked(tv);
-                    case R.id.floating_mode:
-						Intent intent = td.intent;
-                        intent.addFlags(Intent.FLAG_FLOATING_WINDOW
-                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        dismissAndGoBack();
-                        getContext().startActivity(intent);                                
-                        break;
                     case R.id.recent_force_stop:
                     {
                         ActivityManager am = (ActivityManager) getContext()

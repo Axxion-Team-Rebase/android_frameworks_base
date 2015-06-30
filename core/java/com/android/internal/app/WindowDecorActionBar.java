@@ -50,9 +50,6 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.ActionMode;
@@ -666,7 +663,6 @@ public class WindowDecorActionBar extends ActionBar implements
             mHiddenByApp = false;
             updateVisibility(false);
         }
-        changeColorFromActionBar();        
     }
 
     private void showForActionMode() {
@@ -701,10 +697,7 @@ public class WindowDecorActionBar extends ActionBar implements
                 mOverlayLayout.setShowingForActionMode(false);
             }
             updateVisibility(false);
-        }
-        if (mFloatingWindowView != null) {
-            changeFloatingWindowColor(Color.TRANSPARENT, Color.WHITE);
-        }        
+        }      
     }
 
     public void hideForSystem() {

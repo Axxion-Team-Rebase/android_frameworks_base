@@ -356,7 +356,8 @@ public class Action {
             event = KeyEvent.changeAction(event, KeyEvent.ACTION_UP);
             MediaSessionLegacyHelper.getHelper(context).sendMediaButtonEvent(event, true);
         }
-
+	}
+	
     public static void triggerVirtualKeypress(final int keyCode, boolean longpress) {
         InputManager im = InputManager.getInstance();
         long now = SystemClock.uptimeMillis();

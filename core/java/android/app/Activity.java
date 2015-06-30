@@ -52,6 +52,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -702,6 +703,9 @@ public class Activity extends ContextThemeWrapper
     private Instrumentation mInstrumentation;
     private IBinder mToken;
     private int mIdent;
+    
+    private Context mContext;
+    
     /*package*/ String mEmbeddedID;
     private Application mApplication;
     /*package*/ Intent mIntent;
@@ -727,7 +731,7 @@ public class Activity extends ContextThemeWrapper
     /*package*/ Configuration mCurrentConfig;
     private SearchManager mSearchManager;
     private MenuInflater mMenuInflater;
-	
+		
     static final class NonConfigurationInstances {
         Object activity;
         HashMap<String, Object> children;
@@ -1296,6 +1300,11 @@ public class Activity extends ContextThemeWrapper
             return;
         }
 
+		mWindow.peekDecorView().setSystemUiVisibility(
+				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+					
         FrameLayout decorFloatingView = (FrameLayout) mWindow.peekDecorView().getRootView();
         if (decorFloatingView == null) {
             return;
@@ -1317,17 +1326,19 @@ public class Activity extends ContextThemeWrapper
         mFloatingWindowView.setFloatingBackgroundColor(bg_color);
         mFloatingWindowView.setFloatingColorFilter(ic_color);
     }
-        
+
+
     private void changeTitleBarColor() {
         if (mFloatingWindowView != null) {
-            int color = ActivityManager.TaskDescription.getPrimaryColor();
+            TypedArray a = mContext.obtainStyledAttributes(com.android.internal.R.styleable.Theme);
+            int colorPrimary = a.getColor(com.android.internal.R.styleable.Theme_colorPrimary, 0);
             int iconTint;        
-            if (ColorUtils.isBrightColor(color)) {
+            if (ColorUtils.isBrightColor(colorPrimary)) {
 				iconTint = Color.BLACK;
 			} else {
 				iconTint = Color.WHITE;
             }
-            changeFloatingWindowColor(color, iconTint);
+            changeFloatingWindowColor(colorPrimary, iconTint);
         }
     }
     /**
@@ -6755,8 +6766,7 @@ public class Activity extends ContextThemeWrapper
 
             // Create our new window
             mWindow = PolicyManager.makeNewWindow(this);
-            mWindow.mIsFloatingWindow = true
-            enableFullScreen(true);
+            mWindow.mIsFloatingWindow = true;
             if (!isAlreadyAttachToWindow) {
                 isAlreadyAttachToWindow = true;
                 mWindow.setCloseOnTouchOutsideIfNotSet(true);
@@ -6794,15 +6804,6 @@ public class Activity extends ContextThemeWrapper
             Log.e(TAG, "Could not perform float view layout", e);
         }
     }
-
-	private void enableFullScreen(boolean enabled) {
-		if (enabled) {
-			getWindow().getDecorView().setSystemUiVisibility(
-				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-					| View.SYSTEM_UI_FLAG_FULLSCREEN
-					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-		}
-	}
 
     /** @hide */
     public final IBinder getActivityToken() {
