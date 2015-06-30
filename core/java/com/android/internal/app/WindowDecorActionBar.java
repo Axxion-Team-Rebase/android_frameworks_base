@@ -471,34 +471,6 @@ public class WindowDecorActionBar extends ActionBar implements
         mDecorToolbar.setDisplayOptions((options & mask) | (current & ~mask));
     }
 
-    /**
-     * @hide
-     */
-    public void setFloatingWindowBar(FloatingWindowView floatingWindowView) {
-        mFloatingWindowView = floatingWindowView;
-    }
-
-    private void changeFloatingWindowColor(int bg_color, int ic_color) {
-        mFloatingWindowView.setFloatingBackgroundColor(bg_color);
-        mFloatingWindowView.setFloatingColorFilter(ic_color);
-    }
-
-    /**
-     * @hide
-     */
-    public void changeColorFromActionBar() {
-        if (mFloatingWindowView != null) {
-            int color = td.getPrimaryColor();
-            int iconTint;        
-            if (ColorUtils.isBrightColor(color)) {
-				iconTint = Color.BLACK;
-			} else {
-				iconTint = Color.WHITE;
-            }
-            changeFloatingWindowColor(color, iconTint);
-        }
-    }
-
     public void setBackgroundDrawable(Drawable d) {
         mContainerView.setPrimaryBackground(d);
     }

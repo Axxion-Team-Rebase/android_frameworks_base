@@ -29,6 +29,7 @@ import com.android.internal.app.WindowDecorActionBar;
 import com.android.internal.app.ToolbarActionBar;
 import com.android.internal.policy.PolicyManager;
 import com.android.internal.widget.FloatingWindowView;
+import com.android.internal.util.omni.ColorUtils;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
@@ -851,7 +852,7 @@ public class Activity extends ContextThemeWrapper
     private int mAppFloatViewHeight;
     private boolean mChangedFlags = false;
     private boolean isAlreadyAttachToWindow = false;
-    private boolean mIsFullscreenApp = false;
+    public boolean mIsFullscreenApp = false;
     private ScaleGestureDetector mScaleGestureDetector;
     private FloatingWindowView mFloatingWindowView;
 
@@ -1304,18 +1305,31 @@ public class Activity extends ContextThemeWrapper
             mFloatingWindowView = new FloatingWindowView(this, getActionBarHeight(true));
             decorFloatingView.addView(mFloatingWindowView, -1, FloatingWindowView.getParams());
             decorFloatingView.setTagInternal(android.R.id.extractArea, mFloatingWindowView);
+			changeTitleBarColor();            
         } else {
             mFloatingWindowView = (FloatingWindowView) decorFloatingView.getTag(android.R.id.extractArea);
+			changeTitleBarColor();            
             decorFloatingView.bringChildToFront(mFloatingWindowView);
         }
-        if (mDecorActionBar != null) {
-            mDecorActionBar.setFloatingWindowBar(mFloatingWindowView);
-            if (reload && mDecorActionBar.isShowing()) {
-                mDecorActionBar.changeColorFromActionBar();
+    }
+    
+    private void changeFloatingWindowColor(int bg_color, int ic_color) {
+        mFloatingWindowView.setFloatingBackgroundColor(bg_color);
+        mFloatingWindowView.setFloatingColorFilter(ic_color);
+    }
+        
+    private void changeTitleBarColor() {
+        if (mFloatingWindowView != null) {
+            int color = ActivityManager.TaskDescription.getPrimaryColor();
+            int iconTint;        
+            if (ColorUtils.isBrightColor(color)) {
+				iconTint = Color.BLACK;
+			} else {
+				iconTint = Color.WHITE;
             }
+            changeFloatingWindowColor(color, iconTint);
         }
     }
-
     /**
      * Called after {@link #onStop} when the current activity is being
      * re-displayed to the user (the user has navigated back to it).  It will
@@ -6741,7 +6755,8 @@ public class Activity extends ContextThemeWrapper
 
             // Create our new window
             mWindow = PolicyManager.makeNewWindow(this);
-            mWindow.mIsFloatingWindow = true;
+            mWindow.mIsFloatingWindow = true
+            enableFullScreen(true);
             if (!isAlreadyAttachToWindow) {
                 isAlreadyAttachToWindow = true;
                 mWindow.setCloseOnTouchOutsideIfNotSet(true);
@@ -6779,6 +6794,15 @@ public class Activity extends ContextThemeWrapper
             Log.e(TAG, "Could not perform float view layout", e);
         }
     }
+
+	private void enableFullScreen(boolean enabled) {
+		if (enabled) {
+			getWindow().getDecorView().setSystemUiVisibility(
+				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_FULLSCREEN
+					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+		}
+	}
 
     /** @hide */
     public final IBinder getActivityToken() {

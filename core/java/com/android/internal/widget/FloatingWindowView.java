@@ -75,7 +75,7 @@ public class FloatingWindowView extends RelativeLayout {
                                                "floating_window_close");
         mTitleBarControl = (ImageButton) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_control,
                                                "floating_window_control");
-		mAppLabel = (TextView) findViewByIdHelper(mAppLabel, R.id.floating_window_label,
+		mAppLabel = (TextView) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_label,
                                                "floating_window_label");
         mDividerViews = findViewByIdHelper(mTitleBarHeader, R.id.floating_window_line,
                                                "floating_window_line");
@@ -111,7 +111,7 @@ public class FloatingWindowView extends RelativeLayout {
 				}
 			});
 
-		mAppLabel.setText(activity.getApplicationInfo().loadLabel(mActivity.getPackageManager()));
+		mAppLabel.setText(activity.getApplicationInfo().loadLabel(activity.getPackageManager()));
        
         mTitleBarMore.setImageDrawable(mResource.getDrawable(R.drawable.ic_floating_window_more));
 
