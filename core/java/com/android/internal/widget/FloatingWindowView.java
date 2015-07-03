@@ -36,7 +36,8 @@ public class FloatingWindowView extends RelativeLayout {
 
     private Resources mResource;
     private RelativeLayout mTitleBarHeader;
-    private ImageButton mTitleBarControl;
+    private ImageButton mTitleBarMin;
+    private ImageButton mTitleBarMax;
     private TextView mAppLabel;
     private ImageButton mTitleBarClose;
     private ImageButton mTitleBarMore;
@@ -73,8 +74,10 @@ public class FloatingWindowView extends RelativeLayout {
                                                "floating_window_more");
         mTitleBarClose = (ImageButton) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_close,
                                                "floating_window_close");
-        mTitleBarControl = (ImageButton) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_control,
-                                               "floating_window_control");
+        mTitleBarMin = (ImageButton) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_min,
+                                               "floating_window_min");
+        mTitleBarMax = (ImageButton) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_max,
+                                               "floating_window_max");
 		mAppLabel = (TextView) findViewByIdHelper(mTitleBarHeader, R.id.floating_window_label,
                                                "floating_window_label");
         mDividerViews = findViewByIdHelper(mTitleBarHeader, R.id.floating_window_line,
@@ -83,7 +86,8 @@ public class FloatingWindowView extends RelativeLayout {
         if (mTitleBarHeader == null
             || mTitleBarClose == null
             || mTitleBarMore == null
-            || mTitleBarControl == null
+            || mTitleBarMax == null
+            || mTitleBarMin == null
             || mAppLabel == null
             || mDividerViews == null) {
             return;
@@ -96,20 +100,21 @@ public class FloatingWindowView extends RelativeLayout {
             }
         });
 
-		if (activity.mIsFullscreenApp) {
-			mTitleBarControl.setImageDrawable(mResource.getDrawable(R.drawable.ic_floating_window_min));
-			mTitleBarControl.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					activity.restorePreviousLayoutApp();
-				}
-			});
-		} else {
-			mTitleBarControl.setImageDrawable(mResource.getDrawable(R.drawable.ic_floating_window_max));
-			mTitleBarControl.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					activity.setFullscreenApp();
-				}
-			});
+		mTitleBarMin.setImageDrawable(mResource.getDrawable(R.drawable.ic_floating_window_min));
+		mTitleBarMin.setVisibility(activity.mIsFullscreenApp ? View.VISIBLE : View.GONE);
+		mTitleBarMin.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				activity.restorePreviousLayoutApp();
+			}
+		});
+		
+		mTitleBarMax.setImageDrawable(mResource.getDrawable(R.drawable.ic_floating_window_max));
+		mTitleBarMax.setVisibility(activity.mIsFullscreenApp ? View.GONE : View.VISIBLE);
+		mTitleBarMax.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				activity.setFullscreenApp();
+			}
+		});
 
 		mAppLabel.setText(activity.getApplicationInfo().loadLabel(activity.getPackageManager()));
        
@@ -228,14 +233,14 @@ public class FloatingWindowView extends RelativeLayout {
             || mContentViews == null) {
             return;
         }
-        mContentViews.setBackgroundDrawable(makeOutline(color, 1));
         mTitleBarHeader.setBackgroundColor(color);
     }
 
     public void setFloatingColorFilter(int color) {
         if (mTitleBarClose == null
-            || mTitleBarControl == null
-            || mTitleBarMore == null
+            || mTitleBarMax == null
+            || mTitleBarMin == null
+			|| mTitleBarMore == null
             || mDividerViews == null) {
             return;
         }

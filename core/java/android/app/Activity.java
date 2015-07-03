@@ -111,6 +111,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * An activity is a single, focused thing that the user can do.  Almost all
@@ -703,9 +704,7 @@ public class Activity extends ContextThemeWrapper
     private Instrumentation mInstrumentation;
     private IBinder mToken;
     private int mIdent;
-    
-    private Context mContext;
-    
+    	
     /*package*/ String mEmbeddedID;
     private Application mApplication;
     /*package*/ Intent mIntent;
@@ -1300,7 +1299,7 @@ public class Activity extends ContextThemeWrapper
             return;
         }
 
-		mWindow.peekDecorView().setSystemUiVisibility(
+		mWindow.getDecorView().setSystemUiVisibility(
 				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 					| View.SYSTEM_UI_FLAG_FULLSCREEN
 					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -1330,17 +1329,43 @@ public class Activity extends ContextThemeWrapper
 
     private void changeTitleBarColor() {
         if (mFloatingWindowView != null) {
-            TypedArray a = mContext.obtainStyledAttributes(com.android.internal.R.styleable.Theme);
-            int colorPrimary = a.getColor(com.android.internal.R.styleable.Theme_colorPrimary, 0);
-            int iconTint;        
-            if (ColorUtils.isBrightColor(colorPrimary)) {
-				iconTint = Color.BLACK;
-			} else {
-				iconTint = Color.WHITE;
-            }
-            changeFloatingWindowColor(colorPrimary, iconTint);
-        }
-    }
+			try {
+				final PackageManager pm = getPackageManager();
+				// Getting current task packagename
+				final ActivityManager am = (ActivityManager) getSystemService(Activity.ACTIVITY_SERVICE);
+                List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
+				ActivityManager.RunningTaskInfo task = tasks.get(0); // current task
+				ComponentName rootActivity = task.baseActivity;
+				String appPackageName = rootActivity.getPackageName();
+				// Get theme from packagename
+				final Resources res = pm.getResourcesForApplication(appPackageName);
+				final int[] attrs = new int[] {
+					res.getIdentifier("colorPrimary", "attr", appPackageName),
+					android.R.attr.colorPrimary
+				};                
+				final Resources.Theme theme = res.newTheme();
+				final ComponentName cn = pm.getLaunchIntentForPackage(appPackageName).getComponent();
+				theme.applyStyle(pm.getActivityInfo(cn, 0).theme, false);
+				// Obtain the colorPrimary color from the attrs
+				TypedArray a = theme.obtainStyledAttributes(attrs);
+				// Do something with the color
+				final int colorPrimary = a.getColor(0, a.getColor(1, Color.WHITE));
+				// Make sure you recycle the TypedArray
+				a.recycle();
+				a = null;			
+				int iconTint;        
+					if (ColorUtils.isBrightColor(colorPrimary)) {
+						iconTint = Color.BLACK;
+					} else {
+						iconTint = Color.WHITE;
+					}
+					changeFloatingWindowColor(colorPrimary, iconTint);
+			} catch (final NameNotFoundException e) {
+			e.printStackTrace();
+			}				
+		}
+	}
+    
     /**
      * Called after {@link #onStop} when the current activity is being
      * re-displayed to the user (the user has navigated back to it).  It will

@@ -40,7 +40,7 @@
             android:tag="floating_window_close" />
 
         <ImageButton
-            android:id="@+id/floating_window_control"
+            android:id="@+id/floating_window_min"
             style="@android:style/Widget.Holo.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -52,8 +52,23 @@
             android:paddingRight="0dp"
             android:scaleType="fitCenter"
             android:src="#FFF"
-            android:tag="floating_window_control" />
+            android:tag="floating_window_min" />
 
+        <ImageButton
+            android:id="@+id/floating_window_max"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/floating_window_close"
+            android:adjustViewBounds="true"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:scaleType="fitCenter"
+            android:src="#FFF"
+            android:tag="floating_window_max" />
+            
         <TextView
             android:id="@+id/floating_window_label"
             android:layout_width="wrap_content"
