@@ -1299,10 +1299,9 @@ public class Activity extends ContextThemeWrapper
             return;
         }
 
-		mWindow.getDecorView().setSystemUiVisibility(
-				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-					| View.SYSTEM_UI_FLAG_FULLSCREEN
-					| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        mWindow.getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE);
 					
         FrameLayout decorFloatingView = (FrameLayout) mWindow.peekDecorView().getRootView();
         if (decorFloatingView == null) {
@@ -3482,6 +3481,9 @@ public class Activity extends ContextThemeWrapper
         mLastLayout = layout;
         params.width = ViewGroup.LayoutParams.MATCH_PARENT;
         params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        mWindow.getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE);
         mWindow.setAttributes(params);
         mIsFullscreenApp = true;
     }
@@ -3498,6 +3500,9 @@ public class Activity extends ContextThemeWrapper
         params.y = mLastLayout[1];
         params.width = mLastLayout[2];
         params.height = mLastLayout[3];
+        mWindow.getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE);
         mWindow.setAttributes(params);
         mIsFullscreenApp = false;
     }
