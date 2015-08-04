@@ -305,12 +305,12 @@ public class NavigationBarView extends LinearLayout {
 
     private AnimatorSet generateButtonColorsAnimatorSet() {	
         ImageView[] buttons = new ImageView[] {
-            (ImageView) getRecentsButton(),
-            (ImageView) getLeftMenuButton(),
-            (ImageView) getBackButton(),
-            (ImageView) getHomeButton(),
-            (ImageView) getImeSwitchButton(),
-            (ImageView) getLeftImeArrowButton()
+            (ImageView) (mCurrentView == null ? null :getRecentsButton()),
+            (ImageView) (mCurrentView == null ? null : getLeftMenuButton()),
+            (ImageView) (mCurrentView == null ? null : getBackButton()),
+            (ImageView) (mCurrentView == null ? null : getHomeButton()),
+            (ImageView) (mCurrentView == null ? null : getImeSwitchButton()),
+            (ImageView) (mCurrentView == null ? null : getLeftImeArrowButton())
         };
 
         final ArrayList<Animator> anims = new ArrayList<Animator>();
