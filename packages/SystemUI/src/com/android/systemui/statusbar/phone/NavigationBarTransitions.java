@@ -244,8 +244,9 @@ public final class NavigationBarTransitions extends BarTransitions {
 
         public NavigationBarBackgroundDrawable(final Context context) {
             super(context,
-                    R.color.navigation_bar_background_opaque,
-                    R.color.navigation_bar_background_semi_transparent,
+                    R.color.system_bar_background_opaque,
+                    R.color.system_bar_background_transparent,
+                    R.color.system_bar_background_semi_transparent,
                     R.drawable.nav_background);
 
             mContext = context;

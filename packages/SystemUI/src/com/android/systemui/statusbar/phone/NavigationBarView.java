@@ -303,15 +303,14 @@ public class NavigationBarView extends LinearLayout {
         });
     }
 
-    private AnimatorSet generateButtonColorsAnimatorSet() {
-        final ImageView[] buttons = new ImageView[] {
-            (ImageView) getCustomButton(),
+    private AnimatorSet generateButtonColorsAnimatorSet() {	
+        ImageView[] buttons = new ImageView[] {
             (ImageView) getRecentsButton(),
             (ImageView) getLeftMenuButton(),
             (ImageView) getBackButton(),
             (ImageView) getHomeButton(),
             (ImageView) getImeSwitchButton(),
-            (ImageView) getLeftImeArrowButton(),
+            (ImageView) getLeftImeArrowButton()
         };
 
         final ArrayList<Animator> anims = new ArrayList<Animator>();
@@ -435,6 +434,7 @@ public class NavigationBarView extends LinearLayout {
     }
 
     public View getCustomButton(int buttonId) {
+		// Returns new id for new custom key
         return mCurrentView.findViewById(buttonId);
     }
 
@@ -457,7 +457,7 @@ public class NavigationBarView extends LinearLayout {
     public View getRightImeArrowButton() {
         return mCurrentView.findViewById(R.id.ime_right);
     }
-
+    	
     public void setOverrideMenuKeys(boolean b) {
         mOverrideMenuKeys = b;
         setMenuVisibility(mShowMenu, true /* force */);

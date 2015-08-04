@@ -72,7 +72,6 @@ public class BatteryMeterView extends View implements DemoMode,
         BATTERY_METER_GONE
     }
 
-<<<<<<< HEAD
     private int mHeight;
     private int mWidth;
 
@@ -475,7 +474,7 @@ public class BatteryMeterView extends View implements DemoMode,
 
     public int getColorForLevel(int percent, boolean text) {
         int currentUserId = ActivityManager.getCurrentUser();
-        final boolean doOverride = mOverrideIconColor != 0 && !mQS
+        final boolean doOverride = mOverrideIconColor != 0 && !mQS;
 
         mStatusColor = Settings.System.getIntForUser(mResolver,
                 Settings.System.STATUS_BAR_BATTERY_STATUS_COLOR,
@@ -485,7 +484,7 @@ public class BatteryMeterView extends View implements DemoMode,
                 0xff000000, currentUserId);
 
 		if (doOverride) {
-			return mOverrideIconColor
+			return mOverrideIconColor;
 		} else {
 			// If we are in power save mode, always use the normal color.
 			if (mPowerSaveEnabled) {

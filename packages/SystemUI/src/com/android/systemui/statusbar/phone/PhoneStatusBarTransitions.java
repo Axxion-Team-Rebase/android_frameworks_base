@@ -130,8 +130,9 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
 
         public PhoneStatusBarBackgroundDrawable(final Context context) {
             super(context,
-                    R.color.status_bar_background_opaque,
-                    R.color.status_bar_background_semi_transparent,
+                    R.color.system_bar_background_opaque,
+                    R.color.system_bar_background_transparent,
+                    R.color.system_bar_background_semi_transparent,
                     R.drawable.status_background);
 
             mContext = context;
@@ -162,6 +163,12 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
             return mOverrideColor == 0 ? super.getColorOpaque() : mOverrideColor;
         }
 
+        @Override
+        protected int getColorTransparent() {
+            return mOverrideColor == 0 ? super.getColorTransparent() :
+                    (mOverrideColor & 0x00ffffff | 0x7f000000);
+        }
+        
         @Override
         protected int getColorSemiTransparent() {
             return mOverrideColor == 0 ? super.getColorSemiTransparent() :

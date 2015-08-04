@@ -108,12 +108,6 @@ public class SignalClusterView
                             if (mWifi != null) {
                                 mWifi.setColorFilter(null);
                             }
-                            if (mMobile != null) {
-                                mMobile.setColorFilter(null);
-                            }
-                            if (mMobileType != null) {
-                                mMobileType.setColorFilter(null);
-                            }
                             if (mAirplane != null) {
                                 mAirplane.setColorFilter(null);
                             }
@@ -127,12 +121,6 @@ public class SignalClusterView
 
                     if (mWifi != null) {
                         anims.add(buildAnimator(mWifi));
-                    }
-                    if (mMobile != null) {
-                        anims.add(buildAnimator(mMobile));
-                    }
-                    if (mMobileType != null) {
-                        anims.add(buildAnimator(mMobileType));
                     }
                     if (mAirplane != null) {
                         anims.add(buildAnimator(mAirplane));
@@ -413,6 +401,47 @@ public class SignalClusterView
                     .inflate(R.layout.mobile_signal_group, null);
             setViews(root);
             mSubId = subId;
+            
+			BarBackgroundUpdater.addListener(new BarBackgroundUpdater.UpdateListener(this) {
+
+            @Override
+            public AnimatorSet onUpdateStatusBarIconColor(final int previousIconColor,
+                    final int iconColor) {
+                mPreviousOverrideIconColor = previousIconColor;
+                mOverrideIconColor = iconColor;
+
+					if (mOverrideIconColor == 0) {
+						mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+								if (mMobile != null) {
+									mMobile.setColorFilter(null);
+								}
+								if (mMobileType != null) {
+									mMobileType.setColorFilter(null);
+								}
+							}
+						});
+	
+						return null;
+					} else {
+						final ArrayList<Animator> anims = new ArrayList<Animator>();
+						if (mMobile != null) {
+							anims.add(buildAnimator(mMobile));
+						}
+						if (mMobileType != null) {
+							anims.add(buildAnimator(mMobileType));
+						}
+						if (anims.isEmpty()) {
+							return null;
+						} else {
+							final AnimatorSet animSet = new AnimatorSet();
+							animSet.playTogether(anims);
+							return animSet;
+						}
+					}
+				}
+			});            
         }
 
         public void setViews(ViewGroup root) {

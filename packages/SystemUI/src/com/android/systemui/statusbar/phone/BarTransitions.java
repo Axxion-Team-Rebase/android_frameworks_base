@@ -131,10 +131,11 @@ public class BarTransitions {
     }
 
 
-    private static class BarBackgroundDrawable extends Drawable
+    public static class BarBackgroundDrawable extends Drawable
             implements Animator.AnimatorListener, ValueAnimator.AnimatorUpdateListener {
         private final int mOpaqueColorResId;
         private final int mSemiTransparentColorResId;
+        private final int mTransparentColorResId;
         private int mGradientResId;
 
         private final Handler mHandler;
@@ -149,9 +150,9 @@ public class BarTransitions {
   
         private int mOpaque = 0;
         private int mSemiTransparent = 0;
-        private final int mTransparent;
+        private int mTransparent;
         private int mWarning;
-        private final Drawable mGradient = null;
+        private Drawable mGradient = null;
 
 		private int mCurrentMode = -1;
         private int mCurrentColor = 0;
@@ -165,10 +166,11 @@ public class BarTransitions {
         private int mGradientAlphaStart;
         private int mColorStart;
 
-        public BarBackgroundDrawable(final Context context, final int opaqueColorResId,
-                final int semiTransparentColorResId, final int gradientResId) {
+        public BarBackgroundDrawable(final Context context, final int opaqueColorResId, 
+				final int transparentColorResId, final int semiTransparentColorResId, final int gradientResId) {
             mHandler = new Handler();
 			mOpaqueColorResId = opaqueColorResId;
+            mTransparentColorResId = transparentColorResId;
             mSemiTransparentColorResId = semiTransparentColorResId;
             mGradientResId = gradientResId;
 			final Resources res = context.getResources();
@@ -287,11 +289,13 @@ public class BarTransitions {
             if (DEBUG_COLORS) {
                 mOpaque = 0xff0000ff;
                 mSemiTransparent = 0x7f0000ff;
+                mTransparent = 0x2f0000ff;                
                 mWarning = 0xffff0000;                
             } else {
                 mOpaque = res.getColor(mOpaqueColorResId);
                 mSemiTransparent = res.getColor(mSemiTransparentColorResId);
-                mWarning = res.getColor(com.android.internal.R.color.battery_saver_mode_color);                
+                mTransparent = res.getColor(R.color.system_bar_background_transparent);            
+				mWarning = res.getColor(com.android.internal.R.color.battery_saver_mode_color);                
             }
 
             // without holding on to the bounds, they will be reset and the gradient won't be drawn
@@ -310,6 +314,10 @@ public class BarTransitions {
             return mOpaque;
         }
 
+        protected int getColorTransparent() {
+            return mTransparent;
+        }
+        
         protected int getColorSemiTransparent() {
             return mSemiTransparent;
         }
@@ -329,6 +337,7 @@ public class BarTransitions {
         private final int getTargetColor(final int mode) {
             switch (mode) {
             case MODE_TRANSPARENT:
+				return getColorTransparent();
             case MODE_TRANSLUCENT:
                 return 0;
             case MODE_SEMI_TRANSPARENT:
@@ -386,16 +395,8 @@ public class BarTransitions {
                     }
 
                 });
-
-        protected final Animator setGradientAlphaAnimator(final Animator animation) {
-            if (mGradientAlphaAnimator != null) {
-                // TODO mGradientAlphaAnimator.cancel();
-            }
-            mGradientAlphaAnimator = animation;
-            return animation; // return value for chaining calls
-        }
             } else {
-                final int targetColor = getTargetColor(mode);
+               final int targetColor = getTargetColor(mode);
                 final int targetGradientAlpha = getTargetGradientAlpha(mode);
 
                 if (targetColor != mCurrentColor ||
@@ -406,7 +407,15 @@ public class BarTransitions {
                     mHandler.removeCallbacks(mInvalidateSelf);
                     mHandler.postDelayed(mInvalidateSelf, 50);
                 }
+			}
+		}
+		
+        protected final Animator setGradientAlphaAnimator(final Animator animation) {
+            if (mGradientAlphaAnimator != null) {
+                // TODO mGradientAlphaAnimator.cancel();
             }
+            mGradientAlphaAnimator = animation;
+            return animation; // return value for chaining calls
         }
 
         public final void finishAnimating() {
